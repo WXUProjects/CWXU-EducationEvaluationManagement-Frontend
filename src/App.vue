@@ -85,6 +85,7 @@ const currentRouteName = computed(() => {
       font-weight: bold;
       color: #fff;
       padding: 5px 10px;
+      margin-left: 100px;
     }
 
     .header-tabs {
@@ -102,6 +103,7 @@ const currentRouteName = computed(() => {
   }
 
   .router-content {
+    padding-left: 100px;
     flex: 1;
   }
 }
