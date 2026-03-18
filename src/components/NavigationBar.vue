@@ -96,6 +96,7 @@
         width: 50px;
 
         img{
+            user-select: none;
             width: 100%;
         }
     }
