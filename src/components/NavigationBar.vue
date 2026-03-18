@@ -9,6 +9,26 @@
                 <font-awesome-icon icon="fa-solid fa-gear" class="icon" />
                 <div class="title">示例页面</div>
             </router-link>
+            <router-link to="/" class="item">
+                <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
+                <div class="title">评教任务</div>
+            </router-link>
+            <router-link to="/" class="item">
+                <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
+                <div class="title">班级管理</div>
+            </router-link>
+            <router-link to="/" class="item">
+                <font-awesome-icon icon="fa-solid fa-chalkboard-teacher" class="icon" />
+                <div class="title">教师管理</div>
+            </router-link>
+            <router-link to="/" class="item">
+                <font-awesome-icon icon="fa-solid fa-person" class="icon" />
+                <div class="title">学生管理</div>
+            </router-link>
+            <a class="item">
+                <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="icon" />
+                <div class="title">退出</div>
+            </a>
         </div>
         <div class="icon">
             <img src="/public/svg/无锡学院-reverse-logo.svg"></img>
@@ -92,10 +112,10 @@
         }
     }
 
-    .icon{
+    .icon {
         width: 50px;
 
-        img{
+        img {
             user-select: none;
             width: 100%;
         }

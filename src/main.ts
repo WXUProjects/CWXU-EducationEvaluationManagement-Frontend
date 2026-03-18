@@ -11,11 +11,24 @@ import "@chinese-fonts/maple-mono-cn/dist/MapleMono-CN-Regular/result.css";
 // FontAwesome 图标库
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faHome, faGear } from '@fortawesome/free-solid-svg-icons'
+import {
+    faHome,
+    faGear, 
+    faListCheck,
+    faPeopleGroup,
+    faChalkboardTeacher,
+    faPerson,
+    faRightFromBracket
+} from '@fortawesome/free-solid-svg-icons'
 
 library.add({
     faHome,
-    faGear
+    faGear,
+    faListCheck,
+    faPeopleGroup,
+    faChalkboardTeacher,
+    faPerson,
+    faRightFromBracket
 })
 
 const app = createApp(App)
