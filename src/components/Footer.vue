@@ -3,7 +3,7 @@
         <div class="content">
             <div class="title">无锡学院新西伯利亚学院教学评价管理平台</div>
             <div class="logo">
-                <img src="/public/xiboliyaxueyuan.png" alt="">
+                <img src="/xiboliyaxueyuan.png" alt="">
             </div>
         </div>
     </div>

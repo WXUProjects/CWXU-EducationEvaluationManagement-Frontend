@@ -1,27 +1,27 @@
 <template>
     <div class="NavBarContainer">
         <div class="items">
-            <router-link to="/" class="item">
+            <router-link to="/" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-home" class="icon" />
                 <div class="title">首页</div>
             </router-link>
-            <router-link to="/example" class="item">
+            <router-link to="/example" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-gear" class="icon" />
                 <div class="title">示例页面</div>
             </router-link>
-            <router-link to="/" class="item">
+            <router-link to="/evaluations" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
                 <div class="title">评教任务</div>
             </router-link>
-            <router-link to="/" class="item">
+            <router-link to="/classes" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
                 <div class="title">班级管理</div>
             </router-link>
-            <router-link to="/" class="item">
+            <router-link to="/teachers" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-chalkboard-teacher" class="icon" />
                 <div class="title">教师管理</div>
             </router-link>
-            <router-link to="/" class="item">
+            <router-link to="/students" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-person" class="icon" />
                 <div class="title">学生管理</div>
             </router-link>
@@ -31,7 +31,7 @@
             </a>
         </div>
         <div class="icon">
-            <img src="/public/svg/无锡学院-reverse-logo.svg"></img>
+            <img src="/svg/无锡学院-reverse-logo.svg"></img>
         </div>
     </div>
 </template>
@@ -75,6 +75,12 @@
             transform: scale(0.95);
 
             transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, transform 0.1s ease-in-out;
+
+            &.active-item {
+                background-color: #eee;
+                color: #333;
+                transform: scale(1);
+            }
 
             &:first-child {
                 margin-top: 10px;
