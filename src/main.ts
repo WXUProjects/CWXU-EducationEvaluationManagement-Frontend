@@ -5,6 +5,11 @@ import App from './App.vue'
 import router from './router'
 import ToastPlugin from './plugins/toast'
 
+// Element Plus
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import './styles/element-plus-theme.css'
+
 // MapleMono-CN 中文字体
 import "@chinese-fonts/maple-mono-cn/dist/MapleMono-CN-Regular/result.css";
 
@@ -18,7 +23,8 @@ import {
     faPeopleGroup,
     faChalkboardTeacher,
     faPerson,
-    faRightFromBracket
+    faRightFromBracket,
+    faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add({
@@ -28,7 +34,8 @@ library.add({
     faPeopleGroup,
     faChalkboardTeacher,
     faPerson,
-    faRightFromBracket
+    faRightFromBracket,
+    faMagnifyingGlass
 })
 
 const app = createApp(App)
@@ -37,5 +44,6 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
 app.use(router)
 app.use(ToastPlugin)
+app.use(ElementPlus)
 
 app.mount('#app')

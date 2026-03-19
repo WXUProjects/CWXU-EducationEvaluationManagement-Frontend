@@ -19,8 +19,8 @@
           </transition>
         </router-view>
       </div>
-      <Footer></Footer>
     </div>
+    <Footer></Footer>
   </div>
 </template>
 
@@ -59,9 +59,9 @@ const currentRouteName = computed(() => {
 }
 
 .container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .content {
@@ -75,6 +75,7 @@ const currentRouteName = computed(() => {
     justify-content: space-between;
     border-bottom: 1px solid #ddd;
     background-color: #6f2b75;
+    height: 40px;
 
     .header-info {
       display: flex;
@@ -104,7 +105,6 @@ const currentRouteName = computed(() => {
 
   .router-content {
     padding-left: 100px;
-    flex: 1;
   }
 }
 </style>

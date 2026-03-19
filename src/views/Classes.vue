@@ -1,0 +1,14 @@
+<template>
+    <div>
+        <div>这是班级管理页面</div>
+        <div>
+            <div>高等数学0001班</div>
+            <div>学生人数40</div>
+            <div>教师：张三</div>
+            <div>
+                <div>管理班级学生</div>
+                <div>管理班级教师</div>
+            </div>
+        </div>
+    </div>
+</template>
