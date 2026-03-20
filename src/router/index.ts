@@ -18,7 +18,7 @@ const routes = [
     children: [
       {
         path: 'add',
-        name: '添加评教任务',
+        name: '新建评教任务',
         component: () => import('@/views/AddEvaluation.vue'),
       },
       {

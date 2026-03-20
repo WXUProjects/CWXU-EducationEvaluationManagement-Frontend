@@ -79,22 +79,23 @@
             </el-row>
         </el-card>
 
-        <!-- 课程列表表格 -->
+        <!-- 班级列表表格 -->
         <el-card class="table-card">
             <template #header>
                 <div class="table-header">
-                    <span>课程列表</span>
+                    <span>班级列表</span>
                     <el-button type="primary" size="small" @click="handleAddClass">
-                        添加课程
+                        添加班级
                     </el-button>
                 </div>
             </template>
             <el-table :data="data.classes" border style="width: 100%">
                 <el-table-column prop="id" label="ID" width="80" />
-                <el-table-column prop="name" label="课程名称" />
+                <el-table-column prop="name" label="班级名称" />
                 <el-table-column prop="complete" label="已完成" width="100" />
                 <el-table-column prop="incomplete" label="未完成" width="100" />
-                <el-table-column prop="total" label="总数" width="100" />
+                <el-table-column prop="total" label="学生总数" width="100" />
+                <el-table-column prop="teacher" label="任课教师" width="100" />
                 <el-table-column label="操作" width="150" fixed="right">
                     <template #default="{ row }">
                         <el-button link type="primary" @click="handleToClass(row)">
@@ -145,11 +146,11 @@ const data = ref({
     startDate: 1000000000,
     endDate: 1000000000,
     classes: [
-        { id: 1, name: '课程 1', complete: 98, incomplete: 2, total: 100 },
-        { id: 2, name: '课程 2', complete: 98, incomplete: 2, total: 100 },
-        { id: 3, name: '课程 3', complete: 98, incomplete: 2, total: 100 },
-        { id: 4, name: '课程 4', complete: 98, incomplete: 2, total: 100 },
-        { id: 5, name: '课程 5', complete: 98, incomplete: 2, total: 100 }
+        { id: 1, name: '班级 1', complete: 98, incomplete: 2, total: 100,teacher:"张教授" },
+        { id: 2, name: '班级 2', complete: 98, incomplete: 2, total: 100,teacher:"李教授" },
+        { id: 3, name: '班级 3', complete: 98, incomplete: 2, total: 100,teacher:"王教授" },
+        { id: 4, name: '班级 4', complete: 98, incomplete: 2, total: 100,teacher:"张教授" },
+        { id: 5, name: '班级 5', complete: 98, incomplete: 2, total: 100,teacher:"孙教授" }
     ]
 })
 
@@ -211,25 +212,16 @@ const handleCancel = () => {
     router.back()
 }
 
-// 添加课程
-const handleAddClass = () => {
-    const newId = data.value.classes.length + 1
-    data.value.classes.push({
-        id: newId,
-        name: `课程${newId}`,
-        complete: 0,
-        incomplete: 0,
-        total: 0
-    })
-}
+// 添加班级
+const handleAddClass = () => {}
 
-// 转到课程页面
+// 转到班级页面
 const handleToClass = (row: any) => {
 }
 
-// 删除课程
+// 删除班级
 const handleDeleteClass = (row: any) => {
-    ElMessageBox.confirm('确定要删除该课程吗？', '提示', {
+    ElMessageBox.confirm('确定要删除该班级吗？', '提示', {
         type: 'warning'
     }).then(() => {
         data.value.classes = data.value.classes.filter((item) => item.id !== row.id)
