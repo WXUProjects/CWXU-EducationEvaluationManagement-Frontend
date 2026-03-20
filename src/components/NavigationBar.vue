@@ -5,17 +5,17 @@
                 <font-awesome-icon icon="fa-solid fa-home" class="icon" />
                 <div class="title">首页</div>
             </router-link>
-            <router-link to="/example" class="item" active-class="active-item">
-                <font-awesome-icon icon="fa-solid fa-gear" class="icon" />
-                <div class="title">示例页面</div>
-            </router-link>
             <router-link to="/evaluations" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
                 <div class="title">评教任务</div>
             </router-link>
-            <router-link to="/classes" class="item" active-class="active-item">
+            <router-link to="/teaching-classes" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
-                <div class="title">班级管理</div>
+                <div class="title">教学班级</div>
+            </router-link>
+            <router-link to="/administrative-classes" class="item" active-class="active-item">
+                <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
+                <div class="title">行政班级</div>
             </router-link>
             <router-link to="/teachers" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-chalkboard-teacher" class="icon" />

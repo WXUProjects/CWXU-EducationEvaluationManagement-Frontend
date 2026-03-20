@@ -1,5 +1,4 @@
 <template>
-  <ToastNotification />
   <div class="container">
     <NavigationBar></NavigationBar>
     <div class="content">
@@ -29,7 +28,6 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import router from './router'
 import NavigationBar from './components/NavigationBar.vue';
-import ToastNotification from './components/ToastNotification.vue';
 import Footer from './components/Footer.vue';
 
 const route = useRoute()
@@ -76,6 +74,7 @@ const currentRouteName = computed(() => {
     border-bottom: 1px solid #ddd;
     background-color: #6f2b75;
     height: 40px;
+    z-index: 99;
 
     .header-info {
       display: flex;

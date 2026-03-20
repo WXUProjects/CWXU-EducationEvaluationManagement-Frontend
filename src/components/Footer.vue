@@ -14,6 +14,7 @@
     padding: 20px 50px 20px 100px;
     border-top: 3px solid #6f2b75;
     background: #fff;
+    z-index: 99;
 
     .content {
         display: flex;

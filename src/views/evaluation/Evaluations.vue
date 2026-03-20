@@ -71,7 +71,6 @@
 .EvaContainer {
     display: flex;
     height: calc(100vh - 40px);
-    background-color: #f5f7fa;
 }
 
 /* 侧边栏样式 */
