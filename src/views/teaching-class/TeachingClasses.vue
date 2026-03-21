@@ -1,6 +1,6 @@
 <template>
     <div class="classes-container">
-        <div class="classes-management">
+        <div class="classes-management" v-show="!rvhidden">
             <!-- 页面标题 -->
             <div class="page-header">
                 <h2>教学班级管理</h2>
@@ -96,9 +96,6 @@
                         <el-date-picker v-model="classForm.enrollmentYear" type="year" placeholder="选择入学年份"
                             value-format="YYYY" style="width: 100%" />
                     </el-form-item>
-                    <el-form-item label="课程代码" prop="courseCode">
-                        <el-input v-model="classForm.courseCode" placeholder="请输入课程代码" />
-                    </el-form-item>
                     <el-form-item label="课程名称" prop="courseName">
                         <el-input v-model="classForm.courseName" placeholder="请输入课程名称" />
                     </el-form-item>
@@ -161,6 +158,14 @@ const pagination = reactive({
 
 // 临时班级数据（教学班级）
 const classesData = ref([
+    { id: 1, name: '高等数学-2021级-A班', enrollmentYear: '2021', courseCode: 'MATH101', courseName: '高等数学', studentCount: 45, teacherName: '张教授', status: 'active', description: '2021级高等数学A班' },
+    { id: 2, name: '大学英语-2022级-B班', enrollmentYear: '2022', courseCode: 'ENG201', courseName: '大学英语', studentCount: 42, teacherName: '李教授', status: 'active', description: '2022级大学英语B班' },
+    { id: 3, name: '数据结构-2020级-C班', enrollmentYear: '2020', courseCode: 'CS301', courseName: '数据结构', studentCount: 38, teacherName: '王教授', status: 'graduated', description: '2020级数据结构C班，已结课' },
+    { id: 4, name: '计算机网络-2021级-A班', enrollmentYear: '2021', courseCode: 'CS402', courseName: '计算机网络', studentCount: 40, teacherName: '赵教授', status: 'active', description: '2021级计算机网络A班' },
+    { id: 5, name: '软件工程-2022级-B班', enrollmentYear: '2022', courseCode: 'CS501', courseName: '软件工程', studentCount: 35, teacherName: '孙教授', status: 'active', description: '2022级软件工程B班' },
+    { id: 6, name: '数据库系统-2020级-A班', enrollmentYear: '2020', courseCode: 'CS302', courseName: '数据库系统', studentCount: 36, teacherName: '周教授', status: 'graduated', description: '2020级数据库系统A班，已结课' },
+    { id: 7, name: '操作系统-2021级-B班', enrollmentYear: '2021', courseCode: 'CS401', courseName: '操作系统', studentCount: 41, teacherName: '吴教授', status: 'active', description: '2021级操作系统B班' },
+    { id: 8, name: '人工智能导论-2022级-A班', enrollmentYear: '2022', courseCode: 'CS601', courseName: '人工智能导论', studentCount: 39, teacherName: '郑教授', status: 'active', description: '2022级人工智能导论A班' },
     { id: 1, name: '高等数学-2021级-A班', enrollmentYear: '2021', courseCode: 'MATH101', courseName: '高等数学', studentCount: 45, teacherName: '张教授', status: 'active', description: '2021级高等数学A班' },
     { id: 2, name: '大学英语-2022级-B班', enrollmentYear: '2022', courseCode: 'ENG201', courseName: '大学英语', studentCount: 42, teacherName: '李教授', status: 'active', description: '2022级大学英语B班' },
     { id: 3, name: '数据结构-2020级-C班', enrollmentYear: '2020', courseCode: 'CS301', courseName: '数据结构', studentCount: 38, teacherName: '王教授', status: 'graduated', description: '2020级数据结构C班，已结课' },

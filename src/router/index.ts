@@ -42,7 +42,7 @@ const routes = [
     children: [
       {
         path: 'students/:id',
-        name: '管理教学班级学生',
+        name: '管理行政班级学生',
         component: () => import('@/views/administrative-class/EditClassStudents.vue'),
       }
     ],
@@ -50,7 +50,14 @@ const routes = [
   {
     path: '/teachers',
     name: '教师管理',
-    component: () => import('@/views/Teachers.vue'),
+    component: () => import('@/views/teacher/Teachers.vue'),
+    children: [
+      {
+        path: 'classes/:id',
+        name: '管理教师班级',
+        component: () => import('@/views/teacher/Classes.vue'),
+      }
+    ],
   },
   {
     path: '/students',

@@ -1,156 +1,151 @@
 <template>
     <div class="administrative-classes-container">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <h2>行政班级管理</h2>
-            <div class="header-actions">
-                <el-button type="primary" @click="handleAddClass">添加行政班级</el-button>
+        <div class="classes-management" v-show="!rvhidden">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h2>行政班级管理</h2>
+                <div class="header-actions">
+                    <el-button type="primary" @click="handleAddClass">添加行政班级</el-button>
+                </div>
             </div>
+
+            <!-- 搜索和筛选区域 -->
+            <el-card class="filter-card">
+                <el-form :model="filterForm" label-width="80px">
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="班级名称">
+                                <el-input v-model="filterForm.name" placeholder="请输入行政班级名称" clearable />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="入学年份">
+                                <el-date-picker v-model="filterForm.enrollmentYear" type="year" placeholder="选择入学年份"
+                                    value-format="YYYY" clearable style="width: 100%" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="专业">
+                                <el-input v-model="filterForm.major" placeholder="请输入专业" clearable />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                            <div class="filter-buttons">
+                                <el-button type="primary" @click="handleSearch">搜索</el-button>
+                                <el-button @click="handleReset">重置</el-button>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-card>
+
+            <!-- 行政班级列表表格 -->
+            <el-card class="table-card">
+                <template #header>
+                    <div class="table-header">
+                        <span>行政班级列表</span>
+                        <div class="table-header-actions">
+                            <el-button type="primary" size="small" @click="handleExport">导出</el-button>
+                        </div>
+                    </div>
+                </template>
+                <el-table :data="filteredClasses" border style="width: 100%" v-loading="loading">
+                    <el-table-column prop="id" label="ID" width="80" align="center" />
+                    <el-table-column prop="name" label="班级名称" />
+                    <el-table-column prop="enrollmentYear" label="入学年份" width="120" align="center">
+                        <template #default="{ row }">
+                            {{ row.enrollmentYear }}级
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="major" label="专业" />
+                    <el-table-column prop="counselor" label="辅导员" width="120" />
+                    <el-table-column prop="headteacher" label="班主任" width="120" />
+                    <el-table-column prop="studentCount" label="学生人数" width="100" align="center" />
+                    <el-table-column prop="status" label="状态" width="100" align="center">
+                        <template #default="{ row }">
+                            <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
+                                {{ row.status === 'active' ? '活跃' : '已毕业' }}
+                            </el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="200" fixed="right" align="center">
+                        <template #default="{ row }">
+                            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                            <el-button link type="primary" size="small"
+                                @click="handleViewStudents(row)">管理班级学生</el-button>
+                            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+                        :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                        layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange" />
+                </div>
+            </el-card>
+
+            <!-- 添加/编辑行政班级对话框 -->
+            <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
+                <el-form :model="classForm" :rules="classRules" ref="classFormRef" label-width="100px">
+                    <el-form-item label="班级名称" prop="name">
+                        <el-input v-model="classForm.name" placeholder="请输入行政班级名称" />
+                    </el-form-item>
+                    <el-form-item label="入学年份" prop="enrollmentYear">
+                        <el-date-picker v-model="classForm.enrollmentYear" type="year" placeholder="选择入学年份"
+                            value-format="YYYY" style="width: 100%" />
+                    </el-form-item>
+                    <el-form-item label="专业" prop="major">
+                        <el-input v-model="classForm.major" placeholder="请输入专业" />
+                    </el-form-item>
+                    <el-form-item label="辅导员" prop="counselor">
+                        <el-input v-model="classForm.counselor" placeholder="请输入辅导员姓名" />
+                    </el-form-item>
+                    <el-form-item label="学生人数" prop="studentCount">
+                        <el-input-number v-model="classForm.studentCount" :min="0" :max="200" />
+                    </el-form-item>
+                    <el-form-item label="状态" prop="status">
+                        <el-radio-group v-model="classForm.status">
+                            <el-radio label="active">活跃</el-radio>
+                            <el-radio label="graduated">已毕业</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="描述" prop="description">
+                        <el-input v-model="classForm.description" type="textarea" :rows="3" placeholder="请输入班级描述" />
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleSubmit">确定</el-button>
+                    </span>
+                </template>
+            </el-dialog>
         </div>
 
-        <!-- 搜索和筛选区域 -->
-        <el-card class="filter-card">
-            <el-form :model="filterForm" label-width="80px">
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-form-item label="班级名称">
-                            <el-input v-model="filterForm.name" placeholder="请输入行政班级名称" clearable />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="入学年份">
-                            <el-date-picker
-                                v-model="filterForm.enrollmentYear"
-                                type="year"
-                                placeholder="选择入学年份"
-                                value-format="YYYY"
-                                clearable
-                                style="width: 100%"
-                            />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="专业">
-                            <el-input v-model="filterForm.major" placeholder="请输入专业" clearable />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="24">
-                        <div class="filter-buttons">
-                            <el-button type="primary" @click="handleSearch">搜索</el-button>
-                            <el-button @click="handleReset">重置</el-button>
-                        </div>
-                    </el-col>
-                </el-row>
-            </el-form>
-        </el-card>
-
-        <!-- 行政班级列表表格 -->
-        <el-card class="table-card">
-            <template #header>
-                <div class="table-header">
-                    <span>行政班级列表</span>
-                    <div class="table-header-actions">
-                        <el-button type="primary" size="small" @click="handleExport">导出</el-button>
-                    </div>
-                </div>
-            </template>
-            <el-table :data="filteredClasses" border style="width: 100%" v-loading="loading">
-                <el-table-column prop="id" label="ID" width="80" align="center" />
-                <el-table-column prop="name" label="班级名称" />
-                <el-table-column prop="enrollmentYear" label="入学年份" width="120" align="center">
-                    <template #default="{ row }">
-                        {{ row.enrollmentYear }}级
-                    </template>
-                </el-table-column>
-                <el-table-column prop="major" label="专业" />
-                <el-table-column prop="counselor" label="辅导员" width="120" />
-                <el-table-column prop="headteacher" label="班主任" width="120" />
-                <el-table-column prop="studentCount" label="学生人数" width="100" align="center" />
-                <el-table-column prop="status" label="状态" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
-                            {{ row.status === 'active' ? '活跃' : '已毕业' }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" width="200" fixed="right" align="center">
-                    <template #default="{ row }">
-                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                        <el-button link type="primary" size="small" @click="handleViewStudents(row)">管理班级学生</el-button>
-                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <!-- 分页 -->
-            <div class="pagination">
-                <el-pagination
-                    v-model:current-page="pagination.currentPage"
-                    v-model:page-size="pagination.pageSize"
-                    :page-sizes="[10, 20, 50, 100]"
-                    :total="pagination.total"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                />
-            </div>
-        </el-card>
-
-        <!-- 添加/编辑行政班级对话框 -->
-        <el-dialog
-            v-model="dialogVisible"
-            :title="dialogTitle"
-            width="500px"
-            @close="handleDialogClose"
-        >
-            <el-form :model="classForm" :rules="classRules" ref="classFormRef" label-width="100px">
-                <el-form-item label="班级名称" prop="name">
-                    <el-input v-model="classForm.name" placeholder="请输入行政班级名称" />
-                </el-form-item>
-                <el-form-item label="入学年份" prop="enrollmentYear">
-                    <el-date-picker
-                        v-model="classForm.enrollmentYear"
-                        type="year"
-                        placeholder="选择入学年份"
-                        value-format="YYYY"
-                        style="width: 100%"
-                    />
-                </el-form-item>
-                <el-form-item label="专业" prop="major">
-                    <el-input v-model="classForm.major" placeholder="请输入专业" />
-                </el-form-item>
-                <el-form-item label="辅导员" prop="counselor">
-                    <el-input v-model="classForm.counselor" placeholder="请输入辅导员姓名" />
-                </el-form-item>
-                <el-form-item label="学生人数" prop="studentCount">
-                    <el-input-number v-model="classForm.studentCount" :min="0" :max="200" />
-                </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-radio-group v-model="classForm.status">
-                        <el-radio label="active">活跃</el-radio>
-                        <el-radio label="graduated">已毕业</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="描述" prop="description">
-                    <el-input v-model="classForm.description" type="textarea" :rows="3" placeholder="请输入班级描述" />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit">确定</el-button>
-                </span>
-            </template>
-        </el-dialog>
+        <div class="student-management" v-show="rvhidden">
+            <router-view></router-view>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { useRoute } from 'vue-router'
+import router from '@/router'
 
 // 加载状态
 const loading = ref(false)
+const rvhidden = ref(false)
+const route = useRoute()
+
+// 根据路由显示/隐藏 router-view
+watch(() => route.path, (newPath) => {
+    rvhidden.value = newPath.includes('/students')
+}, { immediate: true })
 
 // 筛选表单
 const filterForm = reactive({
@@ -168,14 +163,22 @@ const pagination = reactive({
 
 // 临时行政班级数据
 const classesData = ref([
-    { id: 1, name: '计算机科学与技术2021级1班', enrollmentYear: '2021', major: '计算机科学与技术', studentCount: 45, counselor: '张老师',headteacher: '张老师', status: 'active', description: '2021级计算机科学与技术1班' },
-    { id: 2, name: '软件工程2022级2班', enrollmentYear: '2022', major: '软件工程', studentCount: 42, counselor: '李老师',headteacher: '李老师', status: 'active', description: '2022级软件工程2班' },
-    { id: 3, name: '网络工程2020级1班', enrollmentYear: '2020', major: '网络工程', studentCount: 38, counselor: '王老师',headteacher: '王老师', status: 'graduated', description: '2020级网络工程1班，已毕业' },
-    { id: 4, name: '人工智能2021级1班', enrollmentYear: '2021', major: '人工智能', studentCount: 40, counselor: '赵老师',headteacher: '赵老师', status: 'active', description: '2021级人工智能1班' },
-    { id: 5, name: '数据科学2022级1班', enrollmentYear: '2022', major: '数据科学', studentCount: 35, counselor: '孙老师',headteacher: '孙老师', status: 'active', description: '2022级数据科学1班' },
-    { id: 6, name: '信息安全2020级1班', enrollmentYear: '2020', major: '信息安全', studentCount: 36, counselor: '周老师',headteacher: '周老师', status: 'graduated', description: '2020级信息安全1班，已毕业' },
-    { id: 7, name: '物联网工程2021级1班', enrollmentYear: '2021', major: '物联网工程', studentCount: 41, counselor: '吴老师',headteacher: '吴老师', status: 'active', description: '2021级物联网工程1班' },
-    { id: 8, name: '数字媒体技术2022级1班', enrollmentYear: '2022', major: '数字媒体技术', studentCount: 39, counselor: '郑老师',headteacher: '郑老师', status: 'active', description: '2022级数字媒体技术1班' }
+    { id: 1, name: '计算机科学与技术2021级1班', enrollmentYear: '2021', major: '计算机科学与技术', studentCount: 45, counselor: '张老师', headteacher: '张老师', status: 'active', description: '2021级计算机科学与技术1班' },
+    { id: 2, name: '软件工程2022级2班', enrollmentYear: '2022', major: '软件工程', studentCount: 42, counselor: '李老师', headteacher: '李老师', status: 'active', description: '2022级软件工程2班' },
+    { id: 3, name: '网络工程2020级1班', enrollmentYear: '2020', major: '网络工程', studentCount: 38, counselor: '王老师', headteacher: '王老师', status: 'graduated', description: '2020级网络工程1班，已毕业' },
+    { id: 4, name: '人工智能2021级1班', enrollmentYear: '2021', major: '人工智能', studentCount: 40, counselor: '赵老师', headteacher: '赵老师', status: 'active', description: '2021级人工智能1班' },
+    { id: 5, name: '数据科学2022级1班', enrollmentYear: '2022', major: '数据科学', studentCount: 35, counselor: '孙老师', headteacher: '孙老师', status: 'active', description: '2022级数据科学1班' },
+    { id: 6, name: '信息安全2020级1班', enrollmentYear: '2020', major: '信息安全', studentCount: 36, counselor: '周老师', headteacher: '周老师', status: 'graduated', description: '2020级信息安全1班，已毕业' },
+    { id: 7, name: '物联网工程2021级1班', enrollmentYear: '2021', major: '物联网工程', studentCount: 41, counselor: '吴老师', headteacher: '吴老师', status: 'active', description: '2021级物联网工程1班' },
+    { id: 8, name: '数字媒体技术2022级1班', enrollmentYear: '2022', major: '数字媒体技术', studentCount: 39, counselor: '郑老师', headteacher: '郑老师', status: 'active', description: '2022级数字媒体技术1班' },
+    { id: 1, name: '计算机科学与技术2021级1班', enrollmentYear: '2021', major: '计算机科学与技术', studentCount: 45, counselor: '张老师', headteacher: '张老师', status: 'active', description: '2021级计算机科学与技术1班' },
+    { id: 2, name: '软件工程2022级2班', enrollmentYear: '2022', major: '软件工程', studentCount: 42, counselor: '李老师', headteacher: '李老师', status: 'active', description: '2022级软件工程2班' },
+    { id: 3, name: '网络工程2020级1班', enrollmentYear: '2020', major: '网络工程', studentCount: 38, counselor: '王老师', headteacher: '王老师', status: 'graduated', description: '2020级网络工程1班，已毕业' },
+    { id: 4, name: '人工智能2021级1班', enrollmentYear: '2021', major: '人工智能', studentCount: 40, counselor: '赵老师', headteacher: '赵老师', status: 'active', description: '2021级人工智能1班' },
+    { id: 5, name: '数据科学2022级1班', enrollmentYear: '2022', major: '数据科学', studentCount: 35, counselor: '孙老师', headteacher: '孙老师', status: 'active', description: '2022级数据科学1班' },
+    { id: 6, name: '信息安全2020级1班', enrollmentYear: '2020', major: '信息安全', studentCount: 36, counselor: '周老师', headteacher: '周老师', status: 'graduated', description: '2020级信息安全1班，已毕业' },
+    { id: 7, name: '物联网工程2021级1班', enrollmentYear: '2021', major: '物联网工程', studentCount: 41, counselor: '吴老师', headteacher: '吴老师', status: 'active', description: '2021级物联网工程1班' },
+    { id: 8, name: '数字媒体技术2022级1班', enrollmentYear: '2022', major: '数字媒体技术', studentCount: 39, counselor: '郑老师', headteacher: '郑老师', status: 'active', description: '2022级数字媒体技术1班' }
 ])
 
 // 对话框状态
@@ -276,8 +279,7 @@ const handleEdit = (row: any) => {
 
 // 查看学生
 const handleViewStudents = (row: any) => {
-    ElMessage.info(`查看行政班级 ${row.name} 的学生列表`)
-    // 在实际应用中，这里可以跳转到学生管理页面并过滤该行政班级的学生
+    router.push(`/administrative-classes/students/${row.id}`)
 }
 
 // 删除行政班级
@@ -292,7 +294,7 @@ const handleDelete = (row: any) => {
             classesData.value.splice(index, 1)
             ElMessage.success('删除成功')
         }
-    }).catch(() => {})
+    }).catch(() => { })
 }
 
 // 导出
@@ -358,9 +360,10 @@ onMounted(() => {
 
 <style scoped>
 .administrative-classes-container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
 }
 
 .page-header {
@@ -413,5 +416,18 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+}
+
+.classes-management {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.student-management {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    width: 100%;
+    height: calc(100vh - 40px);
 }
 </style>

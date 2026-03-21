@@ -248,6 +248,14 @@ const studentsData = ref([
     { id: 5, studentId: '20200005', name: '钱七', gender: 'female', classIds: [3, 6], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', phone: '13800138005', email: 'qianqi@student.edu.cn', enrollmentYear: '2020', status: 'graduated', remark: '已毕业' },
     { id: 6, studentId: '20210006', name: '孙八', gender: 'male', classIds: [4, 7], classNames: ['计算机网络-2021级-A班', '操作系统-2021级-B班'], className: '计算机网络-2021级-A班', administrativeClassId: 4, administrativeClassName: '人工智能2021级1班', major: '信息安全', phone: '13800138006', email: 'sunba@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '' },
     { id: 7, studentId: '20210007', name: '周九', gender: 'female', classIds: [5, 8], classNames: ['软件工程-2022级-B班', '人工智能导论-2022级-A班'], className: '软件工程-2022级-B班', administrativeClassId: 5, administrativeClassName: '数据科学2022级1班', major: '人工智能', phone: '13800138007', email: 'zhoujiu@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '竞赛获奖' },
+    { id: 8, studentId: '20200008', name: '吴十', gender: 'male', classIds: [3, 6, 7], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班', '操作系统-2021级-B班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', phone: '13800138008', email: 'wushi@student.edu.cn', enrollmentYear: '2020', status: 'dropped', remark: '已退学' },
+    { id: 1, studentId: '20210001', name: '张三', gender: 'male', classIds: [1, 2], classNames: ['高等数学-2021级-A班', '大学英语-2022级-B班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', phone: '13800138001', email: 'zhangsan@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '优秀学生' },
+    { id: 2, studentId: '20210002', name: '李四', gender: 'female', classIds: [1, 3], classNames: ['高等数学-2021级-A班', '数据结构-2020级-C班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', phone: '13800138002', email: 'lisi@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '班干部' },
+    { id: 3, studentId: '20210003', name: '王五', gender: 'male', classIds: [2, 4], classNames: ['大学英语-2022级-B班', '计算机网络-2021级-A班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', phone: '13800138003', email: 'wangwu@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '' },
+    { id: 4, studentId: '20210004', name: '赵六', gender: 'male', classIds: [2, 5], classNames: ['大学英语-2022级-B班', '软件工程-2022级-B班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', phone: '13800138004', email: 'zhaoliu@student.edu.cn', enrollmentYear: '2021', status: 'suspended', remark: '因病休学' },
+    { id: 5, studentId: '20200005', name: '钱七', gender: 'female', classIds: [3, 6], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', phone: '13800138005', email: 'qianqi@student.edu.cn', enrollmentYear: '2020', status: 'graduated', remark: '已毕业' },
+    { id: 6, studentId: '20210006', name: '孙八', gender: 'male', classIds: [4, 7], classNames: ['计算机网络-2021级-A班', '操作系统-2021级-B班'], className: '计算机网络-2021级-A班', administrativeClassId: 4, administrativeClassName: '人工智能2021级1班', major: '信息安全', phone: '13800138006', email: 'sunba@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '' },
+    { id: 7, studentId: '20210007', name: '周九', gender: 'female', classIds: [5, 8], classNames: ['软件工程-2022级-B班', '人工智能导论-2022级-A班'], className: '软件工程-2022级-B班', administrativeClassId: 5, administrativeClassName: '数据科学2022级1班', major: '人工智能', phone: '13800138007', email: 'zhoujiu@student.edu.cn', enrollmentYear: '2021', status: 'studying', remark: '竞赛获奖' },
     { id: 8, studentId: '20200008', name: '吴十', gender: 'male', classIds: [3, 6, 7], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班', '操作系统-2021级-B班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', phone: '13800138008', email: 'wushi@student.edu.cn', enrollmentYear: '2020', status: 'dropped', remark: '已退学' }
 ])
 
@@ -568,7 +576,6 @@ onMounted(() => {
 <style scoped>
 .students-container {
     padding: 20px;
-    max-width: 1400px;
     margin: 0 auto;
 }
 

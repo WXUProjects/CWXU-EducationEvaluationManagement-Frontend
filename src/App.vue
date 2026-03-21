@@ -48,12 +48,12 @@ const currentRouteName = computed(() => {
 
 .fade-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  /* transform: translateY(10px); */
 }
 
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  /* transform: translateY(-10px); */
 }
 
 .container {

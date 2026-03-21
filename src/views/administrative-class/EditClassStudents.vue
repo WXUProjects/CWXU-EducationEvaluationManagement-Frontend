@@ -28,12 +28,18 @@
                 </el-table-column>
             </el-table>
         </el-card>
+        <div class="pagination">
+            <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+                :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+                @current-change="handleCurrentChange" />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 //获取id参数
-import { watch, ref } from 'vue';
+import { watch, ref, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
@@ -54,8 +60,26 @@ const studentsData = ref([
     { id: 8, studentId: '20200008', name: '吴十', gender: 'male', classIds: [3, 6, 7], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班', '操作系统-2021级-B班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', phone: '13800138008', email: 'wushi@student.edu.cn', enrollmentYear: '2020', status: 'dropped', remark: '已退学' }
 ])
 
+// 分页配置
+const pagination = reactive({
+    currentPage: 1,
+    pageSize: 10,
+    total: 0
+})
+
+// 分页大小改变
+const handleSizeChange = (val: number) => {
+    pagination.pageSize = val
+    pagination.currentPage = 1
+}
+
+// 当前页改变
+const handleCurrentChange = (val: number) => {
+    pagination.currentPage = val
+}
+
 const handleBack = () => {
-    router.push('/teaching-classes')
+    router.back()
 }
 
 watch(route, () => {
@@ -91,6 +115,12 @@ watch(route, () => {
     >.list {
         flex: 1;
         overflow-y: auto;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
     }
 }
 </style>
