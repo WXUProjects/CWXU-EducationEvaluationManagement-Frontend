@@ -413,15 +413,13 @@ onMounted(() => {
 }
 
 .classes-management {
+    width: calc(100% - 40px);
     padding: 20px;
     flex-grow: 1;
 }
 
 .student-management {
-    position: absolute;
     z-index: 10;
-    top: 0;
     width: 100%;
-    height: calc(100vh - 40px);
 }
 </style>
