@@ -15,7 +15,7 @@
                     </div>
                 </div>
             </template>
-            <el-table :data="teachingClassData" border style="width: 100%" v-loading="loading">
+            <el-table :data="filteredTeachingClassData" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="name" label="班级名称" />
                 <el-table-column prop="enrollmentYear" label="入学年份" width="120" align="center">
@@ -35,12 +35,18 @@
                 </el-table-column>
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
-                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                        <el-button link type="primary" size="small" @click="handleViewStudents(row)">管理班级学生</el-button>
-                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                        <el-button link type="primary" size="small">编辑</el-button>
+                        <el-button link type="primary" size="small">管理班级学生</el-button>
+                        <el-button link type="danger" size="small">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="navigation">
+                <el-pagination v-model:current-page="teachingPagination.currentPage"
+                    v-model:page-size="teachingPagination.pageSize" :page-sizes="[5, 10]"
+                    :total="teachingPagination.total" layout="total, sizes, prev, pager, next, jumper"
+                    @size-change="handleTeachingSizeChange" @current-change="handleTeachingCurrentChange" />
+            </div>
         </el-card>
         <el-card>
             <template #header>
@@ -53,7 +59,7 @@
                     </div>
                 </div>
             </template>
-            <el-table :data="administrativeClassData" border style="width: 100%" v-loading="loading">
+            <el-table :data="filteredAdministrativeClassData" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="name" label="班级名称" />
                 <el-table-column prop="enrollmentYear" label="入学年份" width="120" align="center">
@@ -74,18 +80,25 @@
                 </el-table-column>
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
-                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                        <el-button link type="primary" size="small" @click="handleViewStudents(row)">管理班级学生</el-button>
-                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                        <el-button link type="primary" size="small">编辑</el-button>
+                        <el-button link type="primary" size="small">管理班级学生</el-button>
+                        <el-button link type="danger" size="small">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="navigation">
+                <el-pagination v-model:current-page="administrativePagination.currentPage"
+                    v-model:page-size="administrativePagination.pageSize" :page-sizes="[5, 10]"
+                    :total="administrativePagination.total" layout="total, sizes, prev, pager, next, jumper"
+                    @size-change="handleAdministrativeSizeChange" @current-change="handleAdministrativeCurrentChange" />
+            </div>
         </el-card>
     </div>
 </template>
 
 <script setup lang="ts">
 //获取id参数
+import { computed, reactive } from 'vue';
 import { watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
@@ -117,6 +130,59 @@ const administrativeClassData = ref([
     { id: 7, name: '物联网工程2021级1班', enrollmentYear: '2021', major: '物联网工程', studentCount: 41, counselor: '吴老师', headteacher: '吴老师', status: 'active', description: '2021级物联网工程1班' },
     { id: 8, name: '数字媒体技术2022级1班', enrollmentYear: '2022', major: '数字媒体技术', studentCount: 39, counselor: '郑老师', headteacher: '郑老师', status: 'active', description: '2022级数字媒体技术1班' }
 ])
+
+const filteredTeachingClassData = computed(() => {
+    let filtered = teachingClassData.value
+
+    teachingPagination.total = filtered.length
+
+    const start = (teachingPagination.currentPage - 1) * teachingPagination.pageSize
+    const end = start + teachingPagination.pageSize
+    return filtered.slice(start, end)
+})
+
+// 分页配置
+const teachingPagination = reactive({
+    currentPage: 1,
+    pageSize: 5,
+    total: 0
+})
+
+// 分页大小改变
+const handleTeachingSizeChange = (val: number) => {
+    teachingPagination.pageSize = val
+    teachingPagination.currentPage = 1
+}
+
+// 当前页改变
+const handleTeachingCurrentChange = (val: number) => {
+    teachingPagination.currentPage = val
+}
+
+const filteredAdministrativeClassData = computed(() => {
+    let filtered = administrativeClassData.value
+
+    administrativePagination.total = filtered.length
+
+    const start = (administrativePagination.currentPage - 1) * administrativePagination.pageSize
+    const end = start + administrativePagination.pageSize
+    return filtered.slice(start, end)
+})
+
+const administrativePagination = reactive({
+    currentPage: 1,
+    pageSize: 5,
+    total: 0
+})
+
+const handleAdministrativeSizeChange = (val: number) => {
+    administrativePagination.pageSize = val
+    administrativePagination.currentPage = 1
+}
+
+const handleAdministrativeCurrentChange = (val: number) => {
+    administrativePagination.currentPage = val
+}
 
 const handleBack = () => {
     router.back()
@@ -169,5 +235,13 @@ watch(route, () => {
         flex-direction: row;
         gap: 10px;
     }
+}
+
+.navigation {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 0;
 }
 </style>

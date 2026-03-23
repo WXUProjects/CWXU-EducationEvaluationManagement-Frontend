@@ -548,7 +548,7 @@ const handleSubmit = async () => {
         const classNames = studentForm.classIds.map(id => getClassNameById(id))
         const administrativeClassName = getAdministrativeClassNameById(Number(studentForm.administrativeClassId))
         // 保留className为第一个班级名称（兼容性）
-        const className = classNames.length > 0 ? classNames[0] : ''
+        const className = (classNames.length > 0 ? classNames[0] : '') as string;
 
         if (studentForm.id === 0) {
             // 添加新学生

@@ -121,20 +121,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import router from '@/router'
-import { useRoute } from 'vue-router'
 
 // 加载状态
 const loading = ref(false)
-const rvhidden = ref(false)
-const route = useRoute()
-
-// 根据路由显示/隐藏 router-view
-watch(() => route.path, (newPath) => {
-    rvhidden.value = newPath.includes('/students')
-}, { immediate: true })
 
 // 筛选表单
 const filterForm = reactive({
