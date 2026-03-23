@@ -595,8 +595,7 @@ onMounted(() => {
 
 <style scoped>
 .students-container {
-    padding: 20px;
-    margin: 0 auto;
+    padding: 20px 10px 0 0;
 }
 
 .page-header {

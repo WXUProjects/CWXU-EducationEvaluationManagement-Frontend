@@ -5,12 +5,16 @@
             <div class="name">{{ teacherData.name }}</div>
         </div>
         <el-card>
-            <div class="title">教学班级</div>
-            <div class="actions">
-                <el-button @click="handleBack">返回</el-button>
-                <el-button>导入班级</el-button>
-                <el-button>添加单个班级</el-button>
-            </div>
+            <template #header>
+                <div class="card-header">
+                    <div class="title">教学班级</div>
+                    <div class="actions">
+                        <el-button @click="handleBack">返回</el-button>
+                        <el-button>导入班级</el-button>
+                        <el-button>添加单个班级</el-button>
+                    </div>
+                </div>
+            </template>
             <el-table :data="teachingClassData" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="name" label="班级名称" />
@@ -39,12 +43,16 @@
             </el-table>
         </el-card>
         <el-card>
-            <div class="title">行政班级</div>
-            <div class="actions">
-                <el-button @click="handleBack">返回</el-button>
-                <el-button>导入班级</el-button>
-                <el-button>添加单个班级</el-button>
-            </div>
+            <template #header>
+                <div class="card-header">
+                    <div class="title">教学班级</div>
+                    <div class="actions">
+                        <el-button @click="handleBack">返回</el-button>
+                        <el-button>导入班级</el-button>
+                        <el-button>添加单个班级</el-button>
+                    </div>
+                </div>
+            </template>
             <el-table :data="administrativeClassData" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="name" label="班级名称" />
@@ -139,14 +147,27 @@ watch(route, () => {
         }
     }
 
-    >.actions {
-        display: flex;
-        border-bottom: 1px solid #e4e7ed;
-    }
-
     >.list {
         flex: 1;
         overflow-y: auto;
+    }
+}
+
+.card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    >.title {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    >.actions {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
     }
 }
 </style>

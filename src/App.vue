@@ -12,9 +12,10 @@
         </div>
       </div>
       <div class="router-content">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route: currentRoute }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <!-- 只有第一层 router-view 进行强制重新渲染 -->
+            <component :is="Component" :key="'/'+currentRoute.path.split('/')[0]"/>
           </transition>
         </router-view>
       </div>

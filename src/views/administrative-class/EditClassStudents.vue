@@ -109,7 +109,6 @@ watch(route, () => {
 
     >.actions {
         display: flex;
-        border-bottom: 1px solid #e4e7ed;
     }
 
     >.list {

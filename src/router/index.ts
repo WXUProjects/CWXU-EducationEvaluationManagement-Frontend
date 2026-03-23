@@ -1,3 +1,4 @@
+import { KeepAlive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -25,9 +26,15 @@ const routes = [
   },
   {
     path: '/teaching-classes',
-    name: '教学班级管理',
-    component: () => import('@/views/teaching-class/TeachingClasses.vue'),
+    component: () => import('@/components/layout.vue'),
+    redirect: '/teaching-classes/home',
     children: [
+      {
+        path: 'home',
+        name: '管理教学班级',
+        component: () => import('@/views/teaching-class/TeachingClasses.vue'),
+        meta: { KeepAlive: true }
+      },
       {
         path: 'students/:id',
         name: '管理教学班级学生',
@@ -37,9 +44,15 @@ const routes = [
   },
   {
     path: '/administrative-classes',
-    name: '行政班级管理',
-    component: () => import('@/views/administrative-class/AdministrativeClasses.vue'),
+    component: () => import('@/components/layout.vue'),
+    redirect: '/administrative-classes/home',
     children: [
+      {
+        path: 'home',
+        name: '管理行政班级',
+        component: () => import('@/views/administrative-class/AdministrativeClasses.vue'),
+        meta: { KeepAlive: true }
+      },
       {
         path: 'students/:id',
         name: '管理行政班级学生',
@@ -49,9 +62,15 @@ const routes = [
   },
   {
     path: '/teachers',
-    name: '教师管理',
-    component: () => import('@/views/teacher/Teachers.vue'),
+    component: () => import('@/components/layout.vue'),
+    redirect: '/teachers/home',
     children: [
+      {
+        path: 'home',
+        name: '管理教师',
+        component: () => import('@/views/teacher/Teachers.vue'),
+        meta: { KeepAlive: true }
+      },
       {
         path: 'classes/:id',
         name: '管理教师班级',

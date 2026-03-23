@@ -1,153 +1,148 @@
 <template>
-    <div class="teachers-container">
-        <div class="teachers-management" v-show="!rvhidden">
-            <!-- 页面标题 -->
-            <div class="page-header">
-                <h2>教师管理</h2>
-                <div class="header-actions">
-                    <el-button type="primary" @click="handleAddTeacher">添加教师</el-button>
-                </div>
+    <div class="rvcontent">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h2>教师管理</h2>
+            <div class="header-actions">
+                <el-button type="primary" @click="handleAddTeacher">添加教师</el-button>
             </div>
+        </div>
 
-            <!-- 搜索和筛选区域 -->
-            <el-card class="filter-card">
-                <el-form :model="filterForm" label-width="80px">
-                    <el-row :gutter="20">
-                        <el-col :span="8">
-                            <el-form-item label="教师姓名">
-                                <el-input v-model="filterForm.name" placeholder="请输入教师姓名" clearable />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="教师工号">
-                                <el-input v-model="filterForm.teacherId" placeholder="请输入教师工号" clearable />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="职称">
-                                <el-select v-model="filterForm.title" placeholder="请选择职称" clearable>
-                                    <el-option label="助教" value="assistant" />
-                                    <el-option label="讲师" value="lecturer" />
-                                    <el-option label="副教授" value="associate_professor" />
-                                    <el-option label="教授" value="professor" />
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                            <div class="filter-buttons">
-                                <el-button type="primary" @click="handleSearch">搜索</el-button>
-                                <el-button @click="handleReset">重置</el-button>
-                            </div>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </el-card>
-
-            <!-- 教师列表表格 -->
-            <el-card class="table-card">
-                <template #header>
-                    <div class="table-header">
-                        <span>教师列表</span>
-                        <div class="table-header-actions">
-                            <el-button type="primary" size="small" @click="handleExport">导出</el-button>
+        <!-- 搜索和筛选区域 -->
+        <el-card class="filter-card">
+            <el-form :model="filterForm" label-width="80px">
+                <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-form-item label="教师姓名">
+                            <el-input v-model="filterForm.name" placeholder="请输入教师姓名" clearable />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="教师工号">
+                            <el-input v-model="filterForm.teacherId" placeholder="请输入教师工号" clearable />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="职称">
+                            <el-select v-model="filterForm.title" placeholder="请选择职称" clearable>
+                                <el-option label="助教" value="assistant" />
+                                <el-option label="讲师" value="lecturer" />
+                                <el-option label="副教授" value="associate_professor" />
+                                <el-option label="教授" value="professor" />
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="24">
+                        <div class="filter-buttons">
+                            <el-button type="primary" @click="handleSearch">搜索</el-button>
+                            <el-button @click="handleReset">重置</el-button>
                         </div>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </el-card>
+
+        <!-- 教师列表表格 -->
+        <el-card class="table-card">
+            <template #header>
+                <div class="table-header">
+                    <span>教师列表</span>
+                    <div class="table-header-actions">
+                        <el-button type="primary" size="small" @click="handleExport">导出</el-button>
                     </div>
-                </template>
-                <el-table :data="filteredTeachers" border style="width: 100%" v-loading="loading">
-                    <el-table-column prop="id" label="ID" width="80" align="center" />
-                    <el-table-column prop="teacherId" label="工号" width="120" />
-                    <el-table-column prop="name" label="姓名" width="120" />
-                    <el-table-column prop="gender" label="性别" width="80" align="center">
-                        <template #default="{ row }">
-                            {{ row.gender === 'male' ? '男' : '女' }}
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="title" label="职称" width="120">
-                        <template #default="{ row }">
-                            {{ getTitleLabel(row.title) }}
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="department" label="院系" />
-                    <el-table-column prop="phone" label="联系电话" width="150" />
-                    <el-table-column prop="email" label="邮箱" width="200" />
-                    <el-table-column prop="status" label="状态" width="100" align="center">
-                        <template #default="{ row }">
-                            <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
-                                {{ row.status === 'active' ? '在职' : '离职' }}
-                            </el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="200" fixed="right" align="center">
-                        <template #default="{ row }">
-                            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                            <el-button link type="primary" size="small" @click="handleViewCourses(row)">查看班级</el-button>
-                            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-
-                <!-- 分页 -->
-                <div class="pagination">
-                    <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
-                        :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
-                        layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
-                        @current-change="handleCurrentChange" />
                 </div>
-            </el-card>
+            </template>
+            <el-table :data="filteredTeachers" border style="width: 100%" v-loading="loading">
+                <el-table-column prop="id" label="ID" width="80" align="center" />
+                <el-table-column prop="teacherId" label="工号" width="120" />
+                <el-table-column prop="name" label="姓名" width="120" />
+                <el-table-column prop="gender" label="性别" width="80" align="center">
+                    <template #default="{ row }">
+                        {{ row.gender === 'male' ? '男' : '女' }}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="title" label="职称" width="120">
+                    <template #default="{ row }">
+                        {{ getTitleLabel(row.title) }}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="department" label="院系" />
+                <el-table-column prop="phone" label="联系电话" width="150" />
+                <el-table-column prop="email" label="邮箱" width="200" />
+                <el-table-column prop="status" label="状态" width="100" align="center">
+                    <template #default="{ row }">
+                        <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
+                            {{ row.status === 'active' ? '在职' : '离职' }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="200" fixed="right" align="center">
+                    <template #default="{ row }">
+                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                        <el-button link type="primary" size="small" @click="handleViewCourses(row)">查看班级</el-button>
+                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-            <!-- 添加/编辑教师对话框 -->
-            <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
-                <el-form :model="teacherForm" :rules="teacherRules" ref="teacherFormRef" label-width="100px">
-                    <el-form-item label="工号" prop="teacherId">
-                        <el-input v-model="teacherForm.teacherId" placeholder="请输入教师工号" />
-                    </el-form-item>
-                    <el-form-item label="姓名" prop="name">
-                        <el-input v-model="teacherForm.name" placeholder="请输入教师姓名" />
-                    </el-form-item>
-                    <el-form-item label="性别" prop="gender">
-                        <el-radio-group v-model="teacherForm.gender">
-                            <el-radio label="male">男</el-radio>
-                            <el-radio label="female">女</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="职称" prop="title">
-                        <el-select v-model="teacherForm.title" placeholder="请选择职称">
-                            <el-option label="助教" value="assistant" />
-                            <el-option label="讲师" value="lecturer" />
-                            <el-option label="副教授" value="associate_professor" />
-                            <el-option label="教授" value="professor" />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="院系" prop="department">
-                        <el-input v-model="teacherForm.department" placeholder="请输入所属院系" />
-                    </el-form-item>
-                    <el-form-item label="联系电话" prop="phone">
-                        <el-input v-model="teacherForm.phone" placeholder="请输入联系电话" />
-                    </el-form-item>
-                    <el-form-item label="邮箱" prop="email">
-                        <el-input v-model="teacherForm.email" placeholder="请输入邮箱地址" />
-                    </el-form-item>
-                    <el-form-item label="状态" prop="status">
-                        <el-radio-group v-model="teacherForm.status">
-                            <el-radio label="active">在职</el-radio>
-                            <el-radio label="inactive">离职</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="备注" prop="remark">
-                        <el-input v-model="teacherForm.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
-                    </el-form-item>
-                </el-form>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="dialogVisible = false">取消</el-button>
-                        <el-button type="primary" @click="handleSubmit">确定</el-button>
-                    </span>
-                </template>
-            </el-dialog>
-        </div>
-        <div class="classes-management" v-show="rvhidden">
-            <router-view></router-view>
-        </div>
+            <!-- 分页 -->
+            <div class="pagination">
+                <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                    layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange" />
+            </div>
+        </el-card>
+
+        <!-- 添加/编辑教师对话框 -->
+        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
+            <el-form :model="teacherForm" :rules="teacherRules" ref="teacherFormRef" label-width="100px">
+                <el-form-item label="工号" prop="teacherId">
+                    <el-input v-model="teacherForm.teacherId" placeholder="请输入教师工号" />
+                </el-form-item>
+                <el-form-item label="姓名" prop="name">
+                    <el-input v-model="teacherForm.name" placeholder="请输入教师姓名" />
+                </el-form-item>
+                <el-form-item label="性别" prop="gender">
+                    <el-radio-group v-model="teacherForm.gender">
+                        <el-radio label="male">男</el-radio>
+                        <el-radio label="female">女</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="职称" prop="title">
+                    <el-select v-model="teacherForm.title" placeholder="请选择职称">
+                        <el-option label="助教" value="assistant" />
+                        <el-option label="讲师" value="lecturer" />
+                        <el-option label="副教授" value="associate_professor" />
+                        <el-option label="教授" value="professor" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="院系" prop="department">
+                    <el-input v-model="teacherForm.department" placeholder="请输入所属院系" />
+                </el-form-item>
+                <el-form-item label="联系电话" prop="phone">
+                    <el-input v-model="teacherForm.phone" placeholder="请输入联系电话" />
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="teacherForm.email" placeholder="请输入邮箱地址" />
+                </el-form-item>
+                <el-form-item label="状态" prop="status">
+                    <el-radio-group v-model="teacherForm.status">
+                        <el-radio label="active">在职</el-radio>
+                        <el-radio label="inactive">离职</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="备注" prop="remark">
+                    <el-input v-model="teacherForm.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="handleSubmit">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -396,13 +391,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.teachers-container {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-}
-
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -453,16 +441,5 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-}
-
-.teachers-management {
-    width: calc(100% - 40px);
-    padding: 20px;
-    flex-grow: 1;
-}
-
-.classes-management {
-    z-index: 10;
-    width: 100%;
 }
 </style>
