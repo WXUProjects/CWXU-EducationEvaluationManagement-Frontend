@@ -1,7 +1,30 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessageBox } from 'element-plus'
+
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    userStore.logout()
+    router.push('/')
+  } catch {
+    // 用户取消
+  }
+}
+</script>
+
 <template>
     <div class="NavBarContainer">
         <div class="items">
-            <router-link to="/" class="item" active-class="active-item">
+            <router-link to="/home" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-home" class="icon" />
                 <div class="title">首页</div>
             </router-link>
@@ -25,7 +48,7 @@
                 <font-awesome-icon icon="fa-solid fa-person" class="icon" />
                 <div class="title">学生管理</div>
             </router-link>
-            <a class="item">
+            <a class="item" @click="handleLogout">
                 <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="icon" />
                 <div class="title">退出</div>
             </a>
@@ -74,6 +97,7 @@
             color: #fff;
             text-decoration: none;
             transform: scale(0.95);
+            cursor: pointer;
 
             transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, transform 0.1s ease-in-out;
 

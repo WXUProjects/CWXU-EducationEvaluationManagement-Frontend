@@ -4,29 +4,40 @@ import router from '@/router';
 
 <template>
     <div class="HomeContainer">
-        <div class="dashboard">
-            <div class="cards">
-                <div class="card">
-                    <div class="icon">
-                        <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
+        <el-card class="progress-card">
+            <template #header>
+                <span>评教任务</span>
+            </template>
+            <el-row :gutter="20" class="progress-stats">
+                <el-col :span="8">
+                    <div class="stat-item">
+                        <div class="stat-value complete">1</div>
+                        <div class="stat-label">已完成</div>
                     </div>
-                    <div class="info">
-                        <div class="title">评教任务</div>
-                        <div class="content">
-                            <div class="item"><span>1</span>个评教任务进行中</div>
-                            <div class="item"><span>1</span>个评教任务未开始</div>
-                            <div class="item"><span>1</span>个评教任务已结束</div>
-                        </div>
+                </el-col>
+                <el-col :span="8">
+                    <div class="stat-item">
+                        <div class="stat-value uncomplete">1</div>
+                        <div class="stat-label">已结束</div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <el-card class="actions">
+                </el-col>
+                <el-col :span="8">
+                    <div class="stat-item">
+                        <div class="stat-value total">1</div>
+                        <div class="stat-label">未开始</div>
+                    </div>
+                </el-col>
+            </el-row>
+        </el-card>
+        <el-card class="actions-card">
+            <template #header>
+                <span>快捷入口</span>
+            </template>
             <el-button size="large" type="primary" @click="router.push('/evaluations')">管理评教任务</el-button>
-            <el-button size="large" type="primary">管理教学班级</el-button>
-            <el-button size="large" type="primary">管理行政班级</el-button>
-            <el-button size="large" type="primary">管理教师</el-button>
-            <el-button size="large" type="primary">管理学生</el-button>
+            <el-button size="large" type="primary" @click="router.push('/teaching-classes')">管理教学班级</el-button>
+            <el-button size="large" type="primary" @click="router.push('/administrative-classes')">管理行政班级</el-button>
+            <el-button size="large" type="primary" @click="router.push('/teachers')">管理教师</el-button>
+            <el-button size="large" type="primary" @click="router.push('/students')">管理学生</el-button>
         </el-card>
     </div>
 </template>
@@ -38,54 +49,44 @@ import router from '@/router';
     width: calc(100% - 20px);
     padding: 20px 0;
     gap: 20px;
+}
 
-    .dashboard {
-        display: flex;
-        flex-direction: column;
+.progress-card,
+.actions-card {
+    margin-bottom: 20px;
+}
 
-        .cards {
-            display: grid;
+.progress-stats {
+    margin-bottom: 20px;
+}
 
-            .card {
-                width: 300px;
-                height: 100px;
-                padding: 10px;
-                display: flex;
-                flex-direction: row;
-                gap: 10px;
-                border: 1px solid #6f2b75;
-                border-left: 5px solid #6f2b75;
-                background-color: #fff;
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: #f5f7fa;
+    border-radius: 8px;
+}
 
-                .icon {
-                    display: flex;
-                    align-items: center;
-                    font-size: 30px;
-                }
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
 
-                .info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
+.stat-value.complete {
+    color: #67c23a;
+}
 
-                    .title {
-                        font-size: 20px;
-                        font-weight: bold;
-                    }
+.stat-value.uncomplete {
+    color: #e6a23c;
+}
 
-                    .content {
-                        display: flex;
-                        flex-direction: column;
+.stat-value.total {
+    color: #409eff;
+}
 
-                        .item {
-                            span {
-                                font-weight: bold;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+.stat-label {
+    font-size: 14px;
+    color: #666;
 }
 </style>

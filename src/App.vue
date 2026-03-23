@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <NavigationBar></NavigationBar>
+    <NavigationBar v-if="!isLoginPage"></NavigationBar>
     <div class="content">
-      <div class="header">
+      <div class="header" v-if="!isLoginPage">
         <div class="header-info">
           <span class="info-label">></span>
           <span class="info-value">{{ currentRouteName }}</span>
@@ -11,7 +11,7 @@
           <div class="tab" @click="router.back()">返回</div>
         </div>
       </div>
-      <div class="router-content">
+      <div class="router-content" :class="{ 'login-content': isLoginPage }">
         <router-view v-slot="{ Component, route: currentRoute }">
           <transition name="fade" mode="out-in">
             <!-- 只有第一层 router-view 进行强制重新渲染 -->
@@ -20,7 +20,7 @@
         </router-view>
       </div>
     </div>
-    <Footer></Footer>
+    <Footer v-if="!isLoginPage"></Footer>
   </div>
 </template>
 
@@ -38,6 +38,8 @@ const currentRouteName = computed(() => {
   const name = route.name?.toString() || 'home'
   return name.replace(/_/g, ' ')
 })
+
+const isLoginPage = computed(() => route.path === '/')
 </script>
 
 <style scoped>
@@ -105,6 +107,10 @@ const currentRouteName = computed(() => {
 
   .router-content {
     padding-left: 100px;
+  }
+
+  .router-content.login-content {
+    padding-left: 0;
   }
 }
 </style>
