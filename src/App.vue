@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
-    <NavigationBar v-if="!isLoginPage"></NavigationBar>
+  <div class="container" v-if="!isLoginPage">
+    <NavigationBar></NavigationBar>
     <div class="content">
-      <div class="header" v-if="!isLoginPage">
+      <div class="header">
         <div class="header-info">
           <span class="info-label">></span>
           <span class="info-value">{{ currentRouteName }}</span>
@@ -20,7 +20,10 @@
         </router-view>
       </div>
     </div>
-    <Footer v-if="!isLoginPage"></Footer>
+    <Footer></Footer>
+  </div>
+  <div v-else>
+    <router-view></router-view>
   </div>
 </template>
 

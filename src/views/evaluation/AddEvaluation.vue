@@ -52,7 +52,10 @@
                             添加班级
                         </el-button>
                         <el-button type="primary" size="small" @click="handleAddClass">
-                            添加全部班级
+                            添加全部教学班级
+                        </el-button>
+                        <el-button type="primary" size="small" @click="handleAddClass">
+                            添加全部行政班级
                         </el-button>
                     </div>
                 </div>
@@ -60,7 +63,7 @@
             <el-table :data="data.classes" border style="width: 100%">
                 <el-table-column prop="id" label="ID" width="80" />
                 <el-table-column prop="name" label="班级名称" />
-                <el-table-column prop="teacher" label="任课教师" width="100" />
+                <el-table-column prop="teacher" label="被评价教师" width="100" />
                 <el-table-column prop="total" label="学生总数" width="100" />
                 <el-table-column label="操作" width="150" fixed="right">
                     <template #default="{ row }">
@@ -112,11 +115,11 @@ const data = ref({
     startDate: 1000000000,
     endDate: 1000000000,
     classes: [
-        { id: 1, name: '班级 1', complete: 0, incomplete: 100, total: 100,teacher:"张教授" },
-        { id: 2, name: '班级 2', complete: 0, incomplete: 100, total: 100,teacher:"李教授" },
-        { id: 3, name: '班级 3', complete: 0, incomplete: 100, total: 100,teacher:"王教授" },
-        { id: 4, name: '班级 4', complete: 0, incomplete: 100, total: 100,teacher:"张教授" },
-        { id: 5, name: '班级 5', complete: 0, incomplete: 100, total: 100,teacher:"孙教授" }
+        { id: 1, name: '班级 1', complete: 0, incomplete: 100, total: 100, teacher: "张教授" },
+        { id: 2, name: '班级 2', complete: 0, incomplete: 100, total: 100, teacher: "李教授" },
+        { id: 3, name: '班级 3', complete: 0, incomplete: 100, total: 100, teacher: "王教授" },
+        { id: 4, name: '班级 4', complete: 0, incomplete: 100, total: 100, teacher: "张教授" },
+        { id: 5, name: '班级 5', complete: 0, incomplete: 100, total: 100, teacher: "孙教授" }
     ]
 })
 
@@ -179,7 +182,7 @@ const handleCancel = () => {
 }
 
 // 添加班级
-const handleAddClass = () => {}
+const handleAddClass = () => { }
 
 // 转到班级页面
 const handleToClass = (row: any) => {
