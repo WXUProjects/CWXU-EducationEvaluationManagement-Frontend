@@ -89,7 +89,15 @@
                         {{ row.gender === 'male' ? '男' : '女' }}
                     </template>
                 </el-table-column>
-                <el-table-column prop="className" label="教学班级" />
+                <el-table-column prop="classNames" label="教学班级">
+                    <template #default="{ row }">
+                        <div class="class-names">
+                            <el-tag v-for="(className, index) in row.classNames" :key="index" size="small" class="class-tag">
+                                {{ className }}
+                            </el-tag>
+                        </div>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="administrativeClassName" label="行政班级" />
                 <el-table-column prop="major" label="专业" />
                 <el-table-column prop="phone" label="联系电话" width="150" />
@@ -141,8 +149,8 @@
                         <el-radio label="female">女</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="教学班级" prop="classId">
-                    <el-select v-model="studentForm.classId" placeholder="请选择教学班级">
+                <el-form-item label="教学班级" prop="classIds">
+                    <el-select v-model="studentForm.classIds" placeholder="请选择教学班级" multiple>
                         <el-option v-for="classItem in classes" :key="classItem.id" :label="classItem.name"
                             :value="classItem.id" />
                     </el-select>
@@ -268,8 +276,8 @@ const studentForm = reactive({
     studentId: '',
     name: '',
     gender: 'male',
-    classId: '',
-    className: '',
+    classIds: [] as number[],
+    classNames: [] as string[],
     administrativeClassId: '',
     major: '',
     phone: '',
@@ -283,7 +291,18 @@ const studentForm = reactive({
 const studentRules = {
     studentId: [{ required: true, message: '请输入学号', trigger: 'blur' }],
     name: [{ required: true, message: '请输入学生姓名', trigger: 'blur' }],
-    classId: [{ required: true, message: '请选择教学班级', trigger: 'change' }],
+    classIds: [
+        {
+            validator: (rule: any, value: any, callback: any) => {
+                if (!value || value.length === 0) {
+                    callback(new Error('请选择至少一个教学班级'))
+                } else {
+                    callback()
+                }
+            },
+            trigger: 'change'
+        }
+    ],
     administrativeClassId: [{ required: true, message: '请选择行政班级', trigger: 'change' }],
     major: [{ required: true, message: '请输入专业', trigger: 'blur' }],
     phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
@@ -401,8 +420,8 @@ const handleAddStudent = () => {
         studentId: '',
         name: '',
         gender: 'male',
-        classId: '',
-        className: '',
+        classIds: [] as number[],
+        classNames: [] as string[],
         administrativeClassId: '',
         major: '',
         phone: '',
@@ -417,11 +436,10 @@ const handleAddStudent = () => {
 // 编辑学生
 const handleEdit = (row: any) => {
     dialogTitle.value = '编辑学生'
-    // 将数组类型的 classIds 转换为单个 classId（取第一个）
-    const classId = row.classIds && row.classIds.length > 0 ? row.classIds[0] : ''
     Object.assign(studentForm, {
         ...row,
-        classId: classId,
+        classIds: row.classIds || [],
+        classNames: row.classNames || [],
         administrativeClassId: row.administrativeClassId || ''
     })
     dialogVisible.value = true
@@ -526,9 +544,11 @@ const handleSubmit = async () => {
     try {
         await studentFormRef.value.validate()
 
-        // 获取教学班级名称和行政班级名称
-        const className = getClassNameById(Number(studentForm.classId))
+        // 获取教学班级名称数组和行政班级名称
+        const classNames = studentForm.classIds.map(id => getClassNameById(id))
         const administrativeClassName = getAdministrativeClassNameById(Number(studentForm.administrativeClassId))
+        // 保留className为第一个班级名称（兼容性）
+        const className = classNames.length > 0 ? classNames[0] : ''
 
         if (studentForm.id === 0) {
             // 添加新学生
@@ -536,8 +556,8 @@ const handleSubmit = async () => {
             studentsData.value.push({
                 ...studentForm,
                 id: newId,
-                classIds: [Number(studentForm.classId)],
-                classNames: [className],
+                classIds: studentForm.classIds,
+                classNames: classNames,
                 administrativeClassId: Number(studentForm.administrativeClassId),
                 administrativeClassName: administrativeClassName,
                 className: className
@@ -549,8 +569,8 @@ const handleSubmit = async () => {
             if (index !== -1) {
                 studentsData.value[index] = {
                     ...studentForm,
-                    classIds: [Number(studentForm.classId)],
-                    classNames: [className],
+                    classIds: studentForm.classIds,
+                    classNames: classNames,
                     administrativeClassId: Number(studentForm.administrativeClassId),
                     administrativeClassName: administrativeClassName,
                     className: className
@@ -644,5 +664,15 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+}
+
+.class-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.class-tag {
+    margin-right: 4px;
 }
 </style>
