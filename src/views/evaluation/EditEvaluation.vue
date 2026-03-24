@@ -108,6 +108,25 @@
                 </el-table-column>
             </el-table>
         </el-card>
+
+        <!-- 未完成学生列表表格 -->
+        <el-card class="table-card">
+            <template #header>
+                <div class="table-header">
+                    <span>未完成学生</span>
+                    <el-button type="primary" size="small">
+                        导出
+                    </el-button>
+                </div>
+            </template>
+            <el-table border style="width: 100%">
+                <el-table-column label="ID" width="80" />
+                <el-table-column label="学生姓名" />
+                <el-table-column label="行政班级" width="200" />
+                <el-table-column label="评价班级" width="200" />
+                <el-table-column label="受评价教师" width="200" />
+            </el-table>
+        </el-card>
     </div>
 </template>
 
@@ -146,27 +165,13 @@ const data = ref({
     startDate: 1000000000,
     endDate: 1000000000,
     classes: [
-        { id: 1, name: '班级 1', complete: 98, incomplete: 2, total: 100,teacher:"张教授" },
-        { id: 2, name: '班级 2', complete: 98, incomplete: 2, total: 100,teacher:"李教授" },
-        { id: 3, name: '班级 3', complete: 98, incomplete: 2, total: 100,teacher:"王教授" },
-        { id: 4, name: '班级 4', complete: 98, incomplete: 2, total: 100,teacher:"张教授" },
-        { id: 5, name: '班级 5', complete: 98, incomplete: 2, total: 100,teacher:"孙教授" }
+        { id: 1, name: '班级 1', complete: 98, incomplete: 2, total: 100, teacher: "张教授" },
+        { id: 2, name: '班级 2', complete: 98, incomplete: 2, total: 100, teacher: "李教授" },
+        { id: 3, name: '班级 3', complete: 98, incomplete: 2, total: 100, teacher: "王教授" },
+        { id: 4, name: '班级 4', complete: 98, incomplete: 2, total: 100, teacher: "张教授" },
+        { id: 5, name: '班级 5', complete: 98, incomplete: 2, total: 100, teacher: "孙教授" }
     ]
 })
-
-// 计算完成率
-const completionRate = computed(() => {
-    return data.value.total > 0
-        ? Math.round((data.value.complete / data.value.total) * 100)
-        : 0
-})
-
-// 计算单行进度
-const calculateProgress = (row: any) => {
-    return row.total > 0
-        ? Math.round((row.complete / row.total) * 100)
-        : 0
-}
 
 // 监听路由变化
 watch(
@@ -213,7 +218,7 @@ const handleCancel = () => {
 }
 
 // 添加班级
-const handleAddClass = () => {}
+const handleAddClass = () => { }
 
 // 转到班级页面
 const handleToClass = (row: any) => {

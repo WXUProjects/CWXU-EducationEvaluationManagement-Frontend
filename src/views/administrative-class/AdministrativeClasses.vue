@@ -101,6 +101,9 @@
                 <el-form-item label="辅导员" prop="counselor">
                     <el-input v-model="classForm.counselor" placeholder="请输入辅导员姓名" />
                 </el-form-item>
+                <el-form-item label="班主任" prop="headteacher">
+                    <el-input v-model="classForm.headteacher" placeholder="请输入班主任姓名" />
+                </el-form-item>
                 <el-form-item label="学生人数" prop="studentCount">
                     <el-input-number v-model="classForm.studentCount" :min="0" :max="200" />
                 </el-form-item>

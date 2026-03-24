@@ -1,4 +1,3 @@
-import { KeepAlive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -105,7 +104,7 @@ const routes = [
     path: '/:pathMatch(.*)*',
     name: '无效页面',
     component: () => import('@/views/404.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
 ]
 
