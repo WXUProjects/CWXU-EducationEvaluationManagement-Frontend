@@ -15,12 +15,15 @@
         <router-view v-slot="{ Component, route: currentRoute }">
           <transition name="fade" mode="out-in">
             <!-- 只有第一层 router-view 进行强制重新渲染 -->
-            <component :is="Component" :key="'/'+currentRoute.path.split('/')[0]"/>
+            <component :is="Component" :key="'/' + currentRoute.path.split('/')[0]" />
           </transition>
         </router-view>
       </div>
     </div>
     <Footer></Footer>
+    <div class="watermark">
+      <img src="/svg/无锡学院-logo.svg"></img>
+    </div>
   </div>
   <div v-else>
     <router-view></router-view>
@@ -115,5 +118,14 @@ const isLoginPage = computed(() => route.path === '/')
   .router-content.login-content {
     padding-left: 0;
   }
+}
+
+.watermark { 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  opacity: 0.1;
+  transform: translate(-50%, -50%);
 }
 </style>

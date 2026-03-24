@@ -48,7 +48,6 @@ import router from '@/router';
     flex-direction: column;
     width: calc(100% - 20px);
     padding: 20px 0;
-    gap: 20px;
 }
 
 .progress-card,

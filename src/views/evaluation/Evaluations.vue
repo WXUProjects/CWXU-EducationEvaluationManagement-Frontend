@@ -281,7 +281,6 @@
     flex: 1;
     padding: 10px;
     overflow-y: auto;
-    background: #f5f7fa;
 }
 </style>
 
