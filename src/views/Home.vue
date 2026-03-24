@@ -12,7 +12,7 @@ import router from '@/router';
                 <el-col :span="8">
                     <div class="stat-item">
                         <div class="stat-value complete">1</div>
-                        <div class="stat-label">已完成</div>
+                        <div class="stat-label">进行中</div>
                     </div>
                 </el-col>
                 <el-col :span="8">
