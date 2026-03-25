@@ -5,6 +5,7 @@
             <h2>教学班级管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleAddClass">添加教学班级</el-button>
+                <el-button type="primary" @click="handleAddClass">导入教学班级</el-button>
             </div>
         </div>
 

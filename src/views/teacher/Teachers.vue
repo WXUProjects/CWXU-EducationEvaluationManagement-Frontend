@@ -5,6 +5,7 @@
             <h2>教师管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleAddTeacher">添加教师</el-button>
+                <el-button type="primary" @click="handleAddTeacher">导入教师</el-button>
             </div>
         </div>
 
@@ -55,12 +56,12 @@
             <el-table :data="filteredTeachers" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="teacherId" label="工号" width="120" />
-                <el-table-column prop="name" label="姓名" width="300" />
                 <el-table-column prop="gender" label="性别" width="80" align="center">
                     <template #default="{ row }">
                         {{ row.gender === 'male' ? '男' : '女' }}
                     </template>
                 </el-table-column>
+                <el-table-column prop="name" label="姓名" />
                 <el-table-column prop="email" label="邮箱" width="300" />
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">

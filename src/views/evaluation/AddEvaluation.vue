@@ -77,6 +77,23 @@
                 </el-table-column>
             </el-table>
         </el-card>
+
+        <!-- 编辑评教问题 -->
+        <el-card class="table-card">
+            <template #header>
+                <div class="table-header">
+                    <span>编辑评教问题</span>
+                    <div class="table-header-acions">
+                        <el-button type="primary" size="small" @click="handleAddClass">
+                            导入评教问题
+                        </el-button>
+                        <el-button type="primary" size="small" @click="handleAddClass">
+                            使用默认评教问题
+                        </el-button>
+                    </div>
+                </div>
+            </template>
+        </el-card>
     </div>
 </template>
 

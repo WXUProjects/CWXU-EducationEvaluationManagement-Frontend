@@ -35,7 +35,6 @@ import router from '@/router';
             </template>
             <el-button size="large" type="primary" @click="router.push('/evaluations')">管理评教任务</el-button>
             <el-button size="large" type="primary" @click="router.push('/teaching-classes')">管理教学班级</el-button>
-            <el-button size="large" type="primary" @click="router.push('/administrative-classes')">管理行政班级</el-button>
             <el-button size="large" type="primary" @click="router.push('/teachers')">管理教师</el-button>
             <el-button size="large" type="primary" @click="router.push('/students')">管理学生</el-button>
         </el-card>
