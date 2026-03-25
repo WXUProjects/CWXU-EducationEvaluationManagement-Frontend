@@ -7,17 +7,17 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const handleLogout = async () => {
-  try {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    })
-    userStore.logout()
-    router.push('/')
-  } catch {
-    // 用户取消
-  }
+    try {
+        await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        })
+        userStore.logout()
+        router.push('/')
+    } catch {
+        // 用户取消
+    }
 }
 </script>
 
@@ -28,17 +28,9 @@ const handleLogout = async () => {
                 <font-awesome-icon icon="fa-solid fa-home" class="icon" />
                 <div class="title">首页</div>
             </router-link>
-            <router-link to="/evaluations" class="item" active-class="active-item">
-                <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
-                <div class="title">评教任务</div>
-            </router-link>
             <router-link to="/teaching-classes" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
                 <div class="title">教学班级</div>
-            </router-link>
-            <router-link to="/administrative-classes" class="item" active-class="active-item">
-                <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
-                <div class="title">行政班级</div>
             </router-link>
             <router-link to="/teachers" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-chalkboard-teacher" class="icon" />
@@ -47,6 +39,10 @@ const handleLogout = async () => {
             <router-link to="/students" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-person" class="icon" />
                 <div class="title">学生管理</div>
+            </router-link>
+            <router-link to="/evaluations" class="item" active-class="active-item">
+                <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
+                <div class="title">评教任务</div>
             </router-link>
             <a class="item" @click="handleLogout">
                 <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="icon" />

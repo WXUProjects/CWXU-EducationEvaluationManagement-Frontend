@@ -55,26 +55,6 @@ const routes = [
     ],
   },
   {
-    path: '/administrative-classes',
-    component: () => import('@/components/layout.vue'),
-    redirect: '/administrative-classes/home',
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: 'home',
-        name: '管理行政班级',
-        component: () => import('@/views/administrative-class/AdministrativeClasses.vue'),
-        meta: { KeepAlive: true, requiresAuth: true }
-      },
-      {
-        path: 'students/:id',
-        name: '管理行政班级学生',
-        component: () => import('@/views/administrative-class/EditClassStudents.vue'),
-        meta: { requiresAuth: true }
-      }
-    ],
-  },
-  {
     path: '/teachers',
     component: () => import('@/components/layout.vue'),
     redirect: '/teachers/home',
