@@ -55,21 +55,13 @@
             <el-table :data="filteredTeachers" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
                 <el-table-column prop="teacherId" label="工号" width="120" />
-                <el-table-column prop="name" label="姓名" width="120" />
+                <el-table-column prop="name" label="姓名" width="300" />
                 <el-table-column prop="gender" label="性别" width="80" align="center">
                     <template #default="{ row }">
                         {{ row.gender === 'male' ? '男' : '女' }}
                     </template>
                 </el-table-column>
-                <el-table-column prop="department" label="院系" />
-                <el-table-column prop="email" label="邮箱" width="200" />
-                <el-table-column prop="status" label="状态" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
-                            {{ row.status === 'active' ? '在职' : '离职' }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
+                <el-table-column prop="email" label="邮箱" width="300" />
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
@@ -103,20 +95,8 @@
                         <el-radio label="female">女</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="院系" prop="department">
-                    <el-input v-model="teacherForm.department" placeholder="请输入所属院系" />
-                </el-form-item>
                 <el-form-item label="邮箱" prop="email">
                     <el-input v-model="teacherForm.email" placeholder="请输入邮箱地址" />
-                </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-radio-group v-model="teacherForm.status">
-                        <el-radio label="active">在职</el-radio>
-                        <el-radio label="inactive">离职</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="备注" prop="remark">
-                    <el-input v-model="teacherForm.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -153,22 +133,22 @@ const pagination = reactive({
 
 // 临时教师数据
 const teachersData = ref([
-    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', department: '计算机科学与技术学院', email: 'zhang@university.edu.cn', status: 'active', remark: '博士生导师，研究方向：人工智能' },
-    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', department: '软件工程学院', email: 'li@university.edu.cn', status: 'active', remark: '主讲软件工程课程' },
-    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', department: '网络工程学院', email: 'wang@university.edu.cn', status: 'active', remark: '研究方向：网络安全' },
-    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', department: '信息安全学院', email: 'zhao@university.edu.cn', status: 'active', remark: '新入职教师' },
-    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', department: '人工智能学院', email: 'sun@university.edu.cn', status: 'active', remark: '学院院长，研究方向：机器学习' },
-    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', department: '数据科学学院', email: 'zhou@university.edu.cn', status: 'active', remark: '主讲数据挖掘课程' },
-    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', department: '物联网工程学院', email: 'wu@university.edu.cn', status: 'inactive', remark: '已离职' },
-    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', department: '数字媒体学院', email: 'zheng@university.edu.cn', status: 'active', remark: '研究方向：计算机图形学' },
-    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', department: '计算机科学与技术学院', email: 'zhang@university.edu.cn', status: 'active', remark: '博士生导师，研究方向：人工智能' },
-    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', department: '软件工程学院', email: 'li@university.edu.cn', status: 'active', remark: '主讲软件工程课程' },
-    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', department: '网络工程学院', email: 'wang@university.edu.cn', status: 'active', remark: '研究方向：网络安全' },
-    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', department: '信息安全学院', email: 'zhao@university.edu.cn', status: 'active', remark: '新入职教师' },
-    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', department: '人工智能学院', email: 'sun@university.edu.cn', status: 'active', remark: '学院院长，研究方向：机器学习' },
-    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', department: '数据科学学院', email: 'zhou@university.edu.cn', status: 'active', remark: '主讲数据挖掘课程' },
-    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', department: '物联网工程学院', email: 'wu@university.edu.cn', status: 'inactive', remark: '已离职' },
-    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', department: '数字媒体学院', email: 'zheng@university.edu.cn', status: 'active', remark: '研究方向：计算机图形学' }
+    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', email: 'zhang@university.edu.cn' },
+    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', email: 'li@university.edu.cn' },
+    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', email: 'wang@university.edu.cn' },
+    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', email: 'zhao@university.edu.cn' },
+    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', email: 'sun@university.edu.cn' },
+    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', email: 'zhou@university.edu.cn' },
+    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', email: 'wu@university.edu.cn' },
+    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', email: 'zheng@university.edu.cn' },
+    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', email: 'zhang@university.edu.cn' },
+    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', email: 'li@university.edu.cn' },
+    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', email: 'wang@university.edu.cn' },
+    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', email: 'zhao@university.edu.cn' },
+    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', email: 'sun@university.edu.cn' },
+    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', email: 'zhou@university.edu.cn' },
+    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', email: 'wu@university.edu.cn' },
+    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', email: 'zheng@university.edu.cn' }
 ])
 
 // 对话框状态
@@ -180,10 +160,7 @@ const teacherForm = reactive({
     teacherId: '',
     name: '',
     gender: 'male',
-    department: '',
     email: '',
-    status: 'active',
-    remark: ''
 })
 
 // 表单验证规则
@@ -247,12 +224,7 @@ const handleAddTeacher = () => {
         teacherId: '',
         name: '',
         gender: 'male',
-        title: 'lecturer',
-        department: '',
-        phone: '',
         email: '',
-        status: 'active',
-        remark: ''
     })
     dialogVisible.value = true
 }
