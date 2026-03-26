@@ -20,40 +20,19 @@
                     </el-col>
                     <el-col :span="6">
                         <el-form-item label="学号">
-                            <el-input v-model="filterForm.studentId" placeholder="请输入学号" clearable />
+                            <el-input v-model="filterForm.studentNo" placeholder="请输入学号" clearable />
                         </el-form-item>
                     </el-col>
                     <el-col :span="6">
-                        <el-form-item label="教学班级">
-                            <el-select v-model="filterForm.classIds" placeholder="请选择教学班级" multiple clearable>
-                                <el-option v-for="classItem in classes" :key="classItem.id" :label="classItem.name"
-                                    :value="classItem.id" />
-                            </el-select>
+                        <el-form-item label="身份证号">
+                            <el-input v-model="filterForm.idCardNo" placeholder="请输入身份证号" clearable />
                         </el-form-item>
                     </el-col>
                     <el-col :span="6">
-                        <el-form-item label="行政班级">
-                            <el-select v-model="filterForm.administrativeClassId" placeholder="请选择行政班级" clearable>
-                                <el-option v-for="classItem in administrativeClasses" :key="classItem.id"
-                                    :label="classItem.name" :value="classItem.id" />
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
                         <el-form-item label="性别">
-                            <el-select v-model="filterForm.gender" placeholder="请选择性别" clearable>
+                            <el-select v-model="filterForm.sex" placeholder="请选择性别" clearable>
                                 <el-option label="男" value="male" />
                                 <el-option label="女" value="female" />
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="状态">
-                            <el-select v-model="filterForm.status" placeholder="请选择状态" clearable>
-                                <el-option label="在读" value="studying" />
-                                <el-option label="休学" value="suspended" />
-                                <el-option label="毕业" value="graduated" />
-                                <el-option label="退学" value="dropped" />
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -80,32 +59,14 @@
             </template>
             <el-table :data="filteredStudents" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
-                <el-table-column prop="studentId" label="学号" width="120" />
-                <el-table-column prop="name" label="姓名" width="120" />
-                <el-table-column prop="gender" label="性别" width="80" align="center">
+                <el-table-column prop="studentNo" label="学号" width="120" />
+                <el-table-column prop="idCardNo" label="身份证号" width="300" />
+                <el-table-column prop="sex" label="性别" width="80" align="center">
                     <template #default="{ row }">
-                        {{ row.gender === 'male' ? '男' : '女' }}
+                        {{ row.sex === 'male' ? '男' : '女' }}
                     </template>
                 </el-table-column>
-                <el-table-column prop="classNames" label="教学班级">
-                    <template #default="{ row }">
-                        <div class="class-names">
-                            <el-tag v-for="(className, index) in row.classNames" :key="index" size="small"
-                                class="class-tag">
-                                {{ className }}
-                            </el-tag>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="administrativeClassName" label="行政班级" />
-                <el-table-column prop="major" label="专业" />
-                <el-table-column prop="status" label="状态" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="getStatusTagType(row.status)" size="small">
-                            {{ getStatusLabel(row.status) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
+                <el-table-column prop="name" label="姓名" />
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
@@ -118,7 +79,7 @@
             <!-- 批量操作 -->
             <div v-if="selectedStudents.length > 0" class="batch-actions">
                 <span class="batch-count">已选择 {{ selectedStudents.length }} 个学生</span>
-                <el-button type="primary" size="small" @click="handleBatchAssignClass">批量分配班级</el-button>
+                <el-button type="primary" size="small" @click="handleBatchAssignCourse">批量分配班级</el-button>
                 <el-button type="danger" size="small" @click="handleBatchDelete">批量删除</el-button>
             </div>
 
@@ -134,47 +95,20 @@
         <!-- 添加/编辑学生对话框 -->
         <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
             <el-form :model="studentForm" :rules="studentRules" ref="studentFormRef" label-width="100px">
-                <el-form-item label="学号" prop="studentId">
-                    <el-input v-model="studentForm.studentId" placeholder="请输入学号" />
+                <el-form-item label="学号" prop="studentNo">
+                    <el-input v-model="studentForm.studentNo" placeholder="请输入学号" />
                 </el-form-item>
                 <el-form-item label="姓名" prop="name">
                     <el-input v-model="studentForm.name" placeholder="请输入学生姓名" />
                 </el-form-item>
-                <el-form-item label="性别" prop="gender">
-                    <el-radio-group v-model="studentForm.gender">
+                <el-form-item label="性别" prop="sex">
+                    <el-radio-group v-model="studentForm.sex">
                         <el-radio label="male">男</el-radio>
                         <el-radio label="female">女</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="教学班级" prop="classIds">
-                    <el-select v-model="studentForm.classIds" placeholder="请选择教学班级" multiple>
-                        <el-option v-for="classItem in classes" :key="classItem.id" :label="classItem.name"
-                            :value="classItem.id" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="行政班级" prop="administrativeClassId">
-                    <el-select v-model="studentForm.administrativeClassId" placeholder="请选择行政班级">
-                        <el-option v-for="classItem in administrativeClasses" :key="classItem.id"
-                            :label="classItem.name" :value="classItem.id" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="专业" prop="major">
-                    <el-input v-model="studentForm.major" placeholder="请输入专业" />
-                </el-form-item>
-                <el-form-item label="入学年份" prop="enrollmentYear">
-                    <el-date-picker v-model="studentForm.enrollmentYear" type="year" placeholder="选择入学年份"
-                        value-format="YYYY" style="width: 100%" />
-                </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-radio-group v-model="studentForm.status">
-                        <el-radio label="studying">在读</el-radio>
-                        <el-radio label="suspended">休学</el-radio>
-                        <el-radio label="graduated">毕业</el-radio>
-                        <el-radio label="dropped">退学</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="备注" prop="remark">
-                    <el-input v-model="studentForm.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
+                <el-form-item label="身份证号" prop="major">
+                    <el-input v-model="studentForm.idCardNo" placeholder="请输入身份证号" />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -197,11 +131,9 @@ const loading = ref(false)
 // 筛选表单
 const filterForm = reactive({
     name: '',
-    studentId: '',
-    classIds: [] as number[],
-    administrativeClassId: '' as string | number,
-    gender: '',
-    status: ''
+    studentNo: '',
+    idCardNo: '',
+    sex: '',
 })
 
 // 分页配置
@@ -215,7 +147,7 @@ const pagination = reactive({
 const selectedStudents = ref<any[]>([])
 
 // 班级列表（教学班级，临时数据，实际应从API获取）
-const classes = ref([
+const courses = ref([
     { id: 1, name: '高等数学-2021级-A班', courseCode: 'MATH101', courseName: '高等数学' },
     { id: 2, name: '大学英语-2022级-B班', courseCode: 'ENG201', courseName: '大学英语' },
     { id: 3, name: '数据结构-2020级-C班', courseCode: 'CS301', courseName: '数据结构' },
@@ -227,7 +159,7 @@ const classes = ref([
 ])
 
 // 行政班级列表（临时数据，实际应从API获取）
-const administrativeClasses = ref([
+const administrativeCourses = ref([
     { id: 1, name: '计算机科学与技术2021级1班', enrollmentYear: '2021', major: '计算机科学与技术', counselor: '张老师' },
     { id: 2, name: '软件工程2022级2班', enrollmentYear: '2022', major: '软件工程', counselor: '李老师' },
     { id: 3, name: '网络工程2020级1班', enrollmentYear: '2020', major: '网络工程', counselor: '王老师' },
@@ -240,22 +172,22 @@ const administrativeClasses = ref([
 
 // 临时学生数据（一个学生可以有多个教学班级，但只有一个行政班级）
 const studentsData = ref([
-    { id: 1, studentId: '20210001', name: '张三', gender: 'male', classIds: [1, 2], classNames: ['高等数学-2021级-A班', '大学英语-2022级-B班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', enrollmentYear: '2021', status: 'studying', remark: '优秀学生' },
-    { id: 2, studentId: '20210002', name: '李四', gender: 'female', classIds: [1, 3], classNames: ['高等数学-2021级-A班', '数据结构-2020级-C班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', enrollmentYear: '2021', status: 'studying', remark: '班干部' },
-    { id: 3, studentId: '20210003', name: '王五', gender: 'male', classIds: [2, 4], classNames: ['大学英语-2022级-B班', '计算机网络-2021级-A班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', enrollmentYear: '2021', status: 'studying', remark: '' },
-    { id: 4, studentId: '20210004', name: '赵六', gender: 'male', classIds: [2, 5], classNames: ['大学英语-2022级-B班', '软件工程-2022级-B班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', enrollmentYear: '2021', status: 'suspended', remark: '因病休学' },
-    { id: 5, studentId: '20200005', name: '钱七', gender: 'female', classIds: [3, 6], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', enrollmentYear: '2020', status: 'graduated', remark: '已毕业' },
-    { id: 6, studentId: '20210006', name: '孙八', gender: 'male', classIds: [4, 7], classNames: ['计算机网络-2021级-A班', '操作系统-2021级-B班'], className: '计算机网络-2021级-A班', administrativeClassId: 4, administrativeClassName: '人工智能2021级1班', major: '信息安全', enrollmentYear: '2021', status: 'studying', remark: '' },
-    { id: 7, studentId: '20210007', name: '周九', gender: 'female', classIds: [5, 8], classNames: ['软件工程-2022级-B班', '人工智能导论-2022级-A班'], className: '软件工程-2022级-B班', administrativeClassId: 5, administrativeClassName: '数据科学2022级1班', major: '人工智能', enrollmentYear: '2021', status: 'studying', remark: '竞赛获奖' },
-    { id: 8, studentId: '20200008', name: '吴十', gender: 'male', classIds: [3, 6, 7], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班', '操作系统-2021级-B班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', enrollmentYear: '2020', status: 'dropped', remark: '已退学' },
-    { id: 1, studentId: '20210001', name: '张三', gender: 'male', classIds: [1, 2], classNames: ['高等数学-2021级-A班', '大学英语-2022级-B班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', enrollmentYear: '2021', status: 'studying', remark: '优秀学生' },
-    { id: 2, studentId: '20210002', name: '李四', gender: 'female', classIds: [1, 3], classNames: ['高等数学-2021级-A班', '数据结构-2020级-C班'], className: '高等数学-2021级-A班', administrativeClassId: 1, administrativeClassName: '计算机科学与技术2021级1班', major: '计算机科学与技术', enrollmentYear: '2021', status: 'studying', remark: '班干部' },
-    { id: 3, studentId: '20210003', name: '王五', gender: 'male', classIds: [2, 4], classNames: ['大学英语-2022级-B班', '计算机网络-2021级-A班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', enrollmentYear: '2021', status: 'studying', remark: '' },
-    { id: 4, studentId: '20210004', name: '赵六', gender: 'male', classIds: [2, 5], classNames: ['大学英语-2022级-B班', '软件工程-2022级-B班'], className: '大学英语-2022级-B班', administrativeClassId: 2, administrativeClassName: '软件工程2022级2班', major: '软件工程', enrollmentYear: '2021', status: 'suspended', remark: '因病休学' },
-    { id: 5, studentId: '20200005', name: '钱七', gender: 'female', classIds: [3, 6], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', enrollmentYear: '2020', status: 'graduated', remark: '已毕业' },
-    { id: 6, studentId: '20210006', name: '孙八', gender: 'male', classIds: [4, 7], classNames: ['计算机网络-2021级-A班', '操作系统-2021级-B班'], className: '计算机网络-2021级-A班', administrativeClassId: 4, administrativeClassName: '人工智能2021级1班', major: '信息安全', enrollmentYear: '2021', status: 'studying', remark: '' },
-    { id: 7, studentId: '20210007', name: '周九', gender: 'female', classIds: [5, 8], classNames: ['软件工程-2022级-B班', '人工智能导论-2022级-A班'], className: '软件工程-2022级-B班', administrativeClassId: 5, administrativeClassName: '数据科学2022级1班', major: '人工智能', enrollmentYear: '2021', status: 'studying', remark: '竞赛获奖' },
-    { id: 8, studentId: '20200008', name: '吴十', gender: 'male', classIds: [3, 6, 7], classNames: ['数据结构-2020级-C班', '数据库系统-2020级-A班', '操作系统-2021级-B班'], className: '数据结构-2020级-C班', administrativeClassId: 3, administrativeClassName: '网络工程2020级1班', major: '网络工程', enrollmentYear: '2020', status: 'dropped', remark: '已退学' }
+    { id: 1, studentNo: '20210001', idCardNo: '130000000000000001', name: '张三', sex: 'male', },
+    { id: 2, studentNo: '20210002', idCardNo: '130000000000000001', name: '李四', sex: 'female', },
+    { id: 3, studentNo: '20210003', idCardNo: '130000000000000001', name: '王五', sex: 'male', },
+    { id: 4, studentNo: '20210004', idCardNo: '130000000000000001', name: '赵六', sex: 'male', },
+    { id: 5, studentNo: '20200005', idCardNo: '130000000000000001', name: '钱七', sex: 'female', },
+    { id: 6, studentNo: '20210006', idCardNo: '130000000000000001', name: '孙八', sex: 'male', },
+    { id: 7, studentNo: '20210007', idCardNo: '130000000000000001', name: '周九', sex: 'female', },
+    { id: 8, studentNo: '20200008', idCardNo: '130000000000000001', name: '吴十', sex: 'male', },
+    { id: 1, studentNo: '20210001', idCardNo: '130000000000000001', name: '张三', sex: 'male', },
+    { id: 2, studentNo: '20210002', idCardNo: '130000000000000001', name: '李四', sex: 'female', },
+    { id: 3, studentNo: '20210003', idCardNo: '130000000000000001', name: '王五', sex: 'male', },
+    { id: 4, studentNo: '20210004', idCardNo: '130000000000000001', name: '赵六', sex: 'male', },
+    { id: 5, studentNo: '20200005', idCardNo: '130000000000000001', name: '钱七', sex: 'female', },
+    { id: 6, studentNo: '20210006', idCardNo: '130000000000000001', name: '孙八', sex: 'male', },
+    { id: 7, studentNo: '20210007', idCardNo: '130000000000000001', name: '周九', sex: 'female', },
+    { id: 8, studentNo: '20200008', idCardNo: '130000000000000001', name: '吴十', sex: 'male', }
 ])
 
 // 对话框状态
@@ -264,78 +196,17 @@ const dialogTitle = ref('')
 const studentFormRef = ref<FormInstance>()
 const studentForm = reactive({
     id: 0,
-    studentId: '',
+    studentNo: '',
+    idCardNo: '',
     name: '',
-    gender: 'male',
-    classIds: [] as number[],
-    classNames: [] as string[],
-    administrativeClassId: '',
-    major: '',
-    phone: '',
-    email: '',
-    enrollmentYear: '',
-    status: 'studying',
-    remark: ''
+    sex: 'male',
 })
 
 // 表单验证规则
 const studentRules = {
-    studentId: [{ required: true, message: '请输入学号', trigger: 'blur' }],
+    studentNo: [{ required: true, message: '请输入学号', trigger: 'blur' }],
+    idCardNo: [{ required: true, message: '请输入身份证号', trigger: 'blur' }],
     name: [{ required: true, message: '请输入学生姓名', trigger: 'blur' }],
-    classIds: [
-        {
-            validator: (rule: any, value: any, callback: any) => {
-                if (!value || value.length === 0) {
-                    callback(new Error('请选择至少一个教学班级'))
-                } else {
-                    callback()
-                }
-            },
-            trigger: 'change'
-        }
-    ],
-    administrativeClassId: [{ required: true, message: '请选择行政班级', trigger: 'change' }],
-    major: [{ required: true, message: '请输入专业', trigger: 'blur' }],
-    phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
-    email: [
-        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
-    ],
-    enrollmentYear: [{ required: true, message: '请选择入学年份', trigger: 'change' }]
-}
-
-// 状态标签类型映射
-const getStatusTagType = (status: string) => {
-    const map: Record<string, string> = {
-        'studying': 'success',
-        'suspended': 'warning',
-        'graduated': 'info',
-        'dropped': 'danger'
-    }
-    return map[status] || 'info'
-}
-
-// 状态标签文本映射
-const getStatusLabel = (status: string) => {
-    const map: Record<string, string> = {
-        'studying': '在读',
-        'suspended': '休学',
-        'graduated': '毕业',
-        'dropped': '退学'
-    }
-    return map[status] || status
-}
-
-// 根据班级ID获取班级名称
-const getClassNameById = (classId: number) => {
-    const classItem = classes.value.find(item => item.id === classId)
-    return classItem ? classItem.name : ''
-}
-
-// 根据行政班级ID获取行政班级名称
-const getAdministrativeClassNameById = (classId: number) => {
-    const classItem = administrativeClasses.value.find(item => item.id === classId)
-    return classItem ? classItem.name : ''
 }
 
 // 过滤后的学生数据
@@ -348,28 +219,18 @@ const filteredStudents = computed(() => {
     }
 
     // 按学号过滤
-    if (filterForm.studentId) {
-        filtered = filtered.filter(item => item.studentId.includes(filterForm.studentId))
+    if (filterForm.studentNo) {
+        filtered = filtered.filter(item => item.studentNo.includes(filterForm.studentNo))
     }
 
-    // 按教学班级过滤
-    if (filterForm.classIds && filterForm.classIds.length > 0) {
-        filtered = filtered.filter(item => item.classIds.some(classId => filterForm.classIds.includes(classId)))
-    }
-
-    // 按行政班级过滤
-    if (filterForm.administrativeClassId) {
-        filtered = filtered.filter(item => item.administrativeClassId.toString() === filterForm.administrativeClassId.toString())
+    // 按身份证过滤
+    if (filterForm.idCardNo) {
+        filtered = filtered.filter(item => item.idCardNo.includes(filterForm.idCardNo))
     }
 
     // 按性别过滤
-    if (filterForm.gender) {
-        filtered = filtered.filter(item => item.gender === filterForm.gender)
-    }
-
-    // 按状态过滤
-    if (filterForm.status) {
-        filtered = filtered.filter(item => item.status === filterForm.status)
+    if (filterForm.sex) {
+        filtered = filtered.filter(item => item.sex === filterForm.sex)
     }
 
     // 更新分页总数
@@ -394,11 +255,9 @@ const handleSearch = () => {
 // 重置筛选
 const handleReset = () => {
     filterForm.name = ''
-    filterForm.studentId = ''
-    filterForm.classIds = []
-    filterForm.administrativeClassId = ''
-    filterForm.gender = ''
-    filterForm.status = ''
+    filterForm.studentNo = ''
+    filterForm.sex = ''
+    filterForm.idCardNo = ''
     pagination.currentPage = 1
     handleSearch()
 }
@@ -408,18 +267,10 @@ const handleAddStudent = () => {
     dialogTitle.value = '添加学生'
     Object.assign(studentForm, {
         id: 0,
-        studentId: '',
+        studentNo: '',
+        idCardNo: '',
         name: '',
-        gender: 'male',
-        classIds: [] as number[],
-        classNames: [] as string[],
-        administrativeClassId: '',
-        major: '',
-        phone: '',
-        email: '',
-        enrollmentYear: '',
-        status: 'studying',
-        remark: ''
+        sex: 'male',
     })
     dialogVisible.value = true
 }
@@ -429,9 +280,6 @@ const handleEdit = (row: any) => {
     dialogTitle.value = '编辑学生'
     Object.assign(studentForm, {
         ...row,
-        classIds: row.classIds || [],
-        classNames: row.classNames || [],
-        administrativeClassId: row.administrativeClassId || ''
     })
     dialogVisible.value = true
 }
@@ -477,7 +325,7 @@ const handleBatchExport = () => {
 }
 
 // 批量分配班级
-const handleBatchAssignClass = () => {
+const handleBatchAssignCourse = () => {
     if (selectedStudents.value.length === 0) {
         ElMessage.warning('请先选择要分配班级的学生')
         return
@@ -535,23 +383,12 @@ const handleSubmit = async () => {
     try {
         await studentFormRef.value.validate()
 
-        // 获取教学班级名称数组和行政班级名称
-        const classNames = studentForm.classIds.map(id => getClassNameById(id))
-        const administrativeClassName = getAdministrativeClassNameById(Number(studentForm.administrativeClassId))
-        // 保留className为第一个班级名称（兼容性）
-        const className = (classNames.length > 0 ? classNames[0] : '') as string;
-
         if (studentForm.id === 0) {
             // 添加新学生
             const newId = Math.max(...studentsData.value.map(item => item.id)) + 1
             studentsData.value.push({
                 ...studentForm,
                 id: newId,
-                classIds: studentForm.classIds,
-                classNames: classNames,
-                administrativeClassId: Number(studentForm.administrativeClassId),
-                administrativeClassName: administrativeClassName,
-                className: className
             })
             ElMessage.success('添加成功')
         } else {
@@ -560,11 +397,6 @@ const handleSubmit = async () => {
             if (index !== -1) {
                 studentsData.value[index] = {
                     ...studentForm,
-                    classIds: studentForm.classIds,
-                    classNames: classNames,
-                    administrativeClassId: Number(studentForm.administrativeClassId),
-                    administrativeClassName: administrativeClassName,
-                    className: className
                 }
             }
             ElMessage.success('更新成功')
@@ -656,13 +488,13 @@ onMounted(() => {
     gap: 10px;
 }
 
-.class-names {
+.course-names {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
 }
 
-.class-tag {
+.course-tag {
     margin-right: 4px;
 }
 </style>

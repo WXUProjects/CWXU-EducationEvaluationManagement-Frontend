@@ -35,21 +35,21 @@ const routes = [
     ],
   },
   {
-    path: '/teaching-classes',
+    path: '/teaching-courses',
     component: () => import('@/components/layout.vue'),
-    redirect: '/teaching-classes/home',
+    redirect: '/teaching-courses/home',
     meta: { requiresAuth: true },
     children: [
       {
         path: 'home',
         name: '管理教学班级',
-        component: () => import('@/views/teaching-class/TeachingClasses.vue'),
+        component: () => import('@/views/teaching-course/TeachingCourses.vue'),
         meta: { KeepAlive: true, requiresAuth: true }
       },
       {
         path: 'students/:id',
         name: '管理教学班级学生',
-        component: () => import('@/views/teaching-class/EditClassStudents.vue'),
+        component: () => import('@/views/teaching-course/EditCourseStudents.vue'),
         meta: { requiresAuth: true }
       }
     ],
@@ -67,9 +67,9 @@ const routes = [
         meta: { KeepAlive: true, requiresAuth: true }
       },
       {
-        path: 'classes/:id',
+        path: 'courses/:id',
         name: '管理教师班级',
-        component: () => import('@/views/teacher/Classes.vue'),
+        component: () => import('@/views/teacher/Courses.vue'),
         meta: { requiresAuth: true }
       }
     ],

@@ -48,29 +48,29 @@
                 <div class="table-header">
                     <span>班级列表</span>
                     <div class="table-header-acions">
-                        <el-button type="primary" size="small" @click="handleAddClass">
+                        <el-button type="primary" size="small" @click="handleAddCourse">
                             添加班级
                         </el-button>
-                        <el-button type="primary" size="small" @click="handleAddClass">
+                        <el-button type="primary" size="small" @click="handleAddCourse">
                             添加全部教学班级
                         </el-button>
-                        <el-button type="primary" size="small" @click="handleAddClass">
+                        <el-button type="primary" size="small" @click="handleAddCourse">
                             添加全部行政班级
                         </el-button>
                     </div>
                 </div>
             </template>
-            <el-table :data="data.classes" border style="width: 100%">
+            <el-table :data="data.courses" border style="width: 100%">
                 <el-table-column prop="id" label="ID" width="80" />
                 <el-table-column prop="name" label="班级名称" />
                 <el-table-column prop="teacher" label="被评价教师" width="100" />
                 <el-table-column prop="total" label="学生总数" width="100" />
                 <el-table-column label="操作" width="150" fixed="right">
                     <template #default="{ row }">
-                        <el-button link type="primary" @click="handleToClass(row)">
+                        <el-button link type="primary" @click="handleToCourse(row)">
                             查看班级
                         </el-button>
-                        <el-button link type="danger" @click="handleDeleteClass(row)">
+                        <el-button link type="danger" @click="handleDeleteCourse(row)">
                             删除
                         </el-button>
                     </template>
@@ -84,15 +84,20 @@
                 <div class="table-header">
                     <span>编辑评教问题</span>
                     <div class="table-header-acions">
-                        <el-button type="primary" size="small" @click="handleAddClass">
+                        <el-button type="primary" size="small" @click="handleAddCourse">
                             导入评教问题
                         </el-button>
-                        <el-button type="primary" size="small" @click="handleAddClass">
+                        <el-button type="primary" size="small" @click="handleAddCourse">
                             使用默认评教问题
                         </el-button>
                     </div>
                 </div>
             </template>
+            <el-table>
+                <el-column label="问题" width="300"></el-column>
+                <el-column label="答案"></el-column>
+                <el-column label="总分" width="100"></el-column>
+            </el-table>
         </el-card>
     </div>
 </template>
@@ -131,7 +136,7 @@ const data = ref({
     status: 1,
     startDate: 1000000000,
     endDate: 1000000000,
-    classes: [
+    courses: [
         { id: 1, name: '班级 1', complete: 0, incomplete: 100, total: 100, teacher: "张教授" },
         { id: 2, name: '班级 2', complete: 0, incomplete: 100, total: 100, teacher: "李教授" },
         { id: 3, name: '班级 3', complete: 0, incomplete: 100, total: 100, teacher: "王教授" },
@@ -195,22 +200,22 @@ const handleSubmit = async () => {
 
 // 取消操作
 const handleCancel = () => {
-    router.back()
+    router.push('/evaluations')
 }
 
 // 添加班级
-const handleAddClass = () => { }
+const handleAddCourse = () => { }
 
 // 转到班级页面
-const handleToClass = (row: any) => {
+const handleToCourse = (row: any) => {
 }
 
 // 删除班级
-const handleDeleteClass = (row: any) => {
+const handleDeleteCourse = (row: any) => {
     ElMessageBox.confirm('确定要删除该班级吗？', '提示', {
         type: 'warning'
     }).then(() => {
-        data.value.classes = data.value.classes.filter((item) => item.id !== row.id)
+        data.value.courses = data.value.courses.filter((item) => item.id !== row.id)
         ElMessage.success('删除成功')
     }).catch(() => { })
 }

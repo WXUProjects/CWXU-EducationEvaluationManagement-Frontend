@@ -14,23 +14,23 @@
             <el-form :model="filterForm" label-width="80px">
                 <el-row :gutter="20">
                     <el-col :span="8">
-                        <el-form-item label="教师姓名">
+                        <el-form-item label="姓名">
                             <el-input v-model="filterForm.name" placeholder="请输入教师姓名" clearable />
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="教师工号">
-                            <el-input v-model="filterForm.teacherId" placeholder="请输入教师工号" clearable />
+                        <el-form-item label="性别">
+                            <el-input v-model="filterForm.sex" placeholder="请输入教师标题" clearable />
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="职称">
-                            <el-select v-model="filterForm.title" placeholder="请选择职称" clearable>
-                                <el-option label="助教" value="assistant" />
-                                <el-option label="讲师" value="lecturer" />
-                                <el-option label="副教授" value="associate_professor" />
-                                <el-option label="教授" value="professor" />
-                            </el-select>
+                        <el-form-item label="工号">
+                            <el-input v-model="filterForm.workNo" placeholder="请输入教师工号" clearable />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="邮箱">
+                            <el-input v-model="filterForm.email" placeholder="请输入教师邮箱" clearable />
                         </el-form-item>
                     </el-col>
                     <el-col :span="24">
@@ -55,10 +55,10 @@
             </template>
             <el-table :data="filteredTeachers" border style="width: 100%" v-loading="loading">
                 <el-table-column prop="id" label="ID" width="80" align="center" />
-                <el-table-column prop="teacherId" label="工号" width="120" />
-                <el-table-column prop="gender" label="性别" width="80" align="center">
+                <el-table-column prop="workNo" label="工号" width="120" />
+                <el-table-column prop="sex" label="性别" width="80" align="center">
                     <template #default="{ row }">
-                        {{ row.gender === 'male' ? '男' : '女' }}
+                        {{ row.sex === 'male' ? '男' : '女' }}
                     </template>
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" />
@@ -84,14 +84,14 @@
         <!-- 添加/编辑教师对话框 -->
         <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
             <el-form :model="teacherForm" :rules="teacherRules" ref="teacherFormRef" label-width="100px">
-                <el-form-item label="工号" prop="teacherId">
-                    <el-input v-model="teacherForm.teacherId" placeholder="请输入教师工号" />
+                <el-form-item label="工号" prop="workNo">
+                    <el-input v-model="teacherForm.workNo" placeholder="请输入教师工号" />
                 </el-form-item>
                 <el-form-item label="姓名" prop="name">
                     <el-input v-model="teacherForm.name" placeholder="请输入教师姓名" />
                 </el-form-item>
-                <el-form-item label="性别" prop="gender">
-                    <el-radio-group v-model="teacherForm.gender">
+                <el-form-item label="性别" prop="sex">
+                    <el-radio-group v-model="teacherForm.sex">
                         <el-radio label="male">男</el-radio>
                         <el-radio label="female">女</el-radio>
                     </el-radio-group>
@@ -121,8 +121,9 @@ const loading = ref(false)
 // 筛选表单
 const filterForm = reactive({
     name: '',
-    teacherId: '',
-    title: ''
+    sex: '',
+    workNo: '',
+    email: '',
 })
 
 // 分页配置
@@ -134,22 +135,22 @@ const pagination = reactive({
 
 // 临时教师数据
 const teachersData = ref([
-    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', email: 'zhang@university.edu.cn' },
-    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', email: 'li@university.edu.cn' },
-    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', email: 'wang@university.edu.cn' },
-    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', email: 'zhao@university.edu.cn' },
-    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', email: 'sun@university.edu.cn' },
-    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', email: 'zhou@university.edu.cn' },
-    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', email: 'wu@university.edu.cn' },
-    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', email: 'zheng@university.edu.cn' },
-    { id: 1, teacherId: 'T2021001', name: '张教授', gender: 'male', email: 'zhang@university.edu.cn' },
-    { id: 2, teacherId: 'T2021002', name: '李老师', gender: 'female', email: 'li@university.edu.cn' },
-    { id: 3, teacherId: 'T2021003', name: '王副教授', gender: 'male', email: 'wang@university.edu.cn' },
-    { id: 4, teacherId: 'T2021004', name: '赵助教', gender: 'female', email: 'zhao@university.edu.cn' },
-    { id: 5, teacherId: 'T2021005', name: '孙教授', gender: 'male', email: 'sun@university.edu.cn' },
-    { id: 6, teacherId: 'T2021006', name: '周讲师', gender: 'male', email: 'zhou@university.edu.cn' },
-    { id: 7, teacherId: 'T2021007', name: '吴老师', gender: 'female', email: 'wu@university.edu.cn' },
-    { id: 8, teacherId: 'T2021008', name: '郑副教授', gender: 'male', email: 'zheng@university.edu.cn' }
+    { id: 1, workNo: 'T2021001', name: '张教授', sex: 'male', email: 'zhang@university.edu.cn' },
+    { id: 2, workNo: 'T2021002', name: '李老师', sex: 'female', email: 'li@university.edu.cn' },
+    { id: 3, workNo: 'T2021003', name: '王副教授', sex: 'male', email: 'wang@university.edu.cn' },
+    { id: 4, workNo: 'T2021004', name: '赵助教', sex: 'female', email: 'zhao@university.edu.cn' },
+    { id: 5, workNo: 'T2021005', name: '孙教授', sex: 'male', email: 'sun@university.edu.cn' },
+    { id: 6, workNo: 'T2021006', name: '周讲师', sex: 'male', email: 'zhou@university.edu.cn' },
+    { id: 7, workNo: 'T2021007', name: '吴老师', sex: 'female', email: 'wu@university.edu.cn' },
+    { id: 8, workNo: 'T2021008', name: '郑副教授', sex: 'male', email: 'zheng@university.edu.cn' },
+    { id: 1, workNo: 'T2021001', name: '张教授', sex: 'male', email: 'zhang@university.edu.cn' },
+    { id: 2, workNo: 'T2021002', name: '李老师', sex: 'female', email: 'li@university.edu.cn' },
+    { id: 3, workNo: 'T2021003', name: '王副教授', sex: 'male', email: 'wang@university.edu.cn' },
+    { id: 4, workNo: 'T2021004', name: '赵助教', sex: 'female', email: 'zhao@university.edu.cn' },
+    { id: 5, workNo: 'T2021005', name: '孙教授', sex: 'male', email: 'sun@university.edu.cn' },
+    { id: 6, workNo: 'T2021006', name: '周讲师', sex: 'male', email: 'zhou@university.edu.cn' },
+    { id: 7, workNo: 'T2021007', name: '吴老师', sex: 'female', email: 'wu@university.edu.cn' },
+    { id: 8, workNo: 'T2021008', name: '郑副教授', sex: 'male', email: 'zheng@university.edu.cn' }
 ])
 
 // 对话框状态
@@ -158,17 +159,17 @@ const dialogTitle = ref('')
 const teacherFormRef = ref<FormInstance>()
 const teacherForm = reactive({
     id: 0,
-    teacherId: '',
+    workNo: '',
     name: '',
-    gender: 'male',
+    sex: 'male',
     email: '',
 })
 
 // 表单验证规则
 const teacherRules = {
-    teacherId: [{ required: true, message: '请输入教师工号', trigger: 'blur' }],
+    workNo: [{ required: true, message: '请输入教师工号', trigger: 'blur' }],
     name: [{ required: true, message: '请输入教师姓名', trigger: 'blur' }],
-    department: [{ required: true, message: '请输入所属院系', trigger: 'blur' }],
+    sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
     email: [
         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
         { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
@@ -184,9 +185,19 @@ const filteredTeachers = computed(() => {
         filtered = filtered.filter(item => item.name.includes(filterForm.name))
     }
 
+    // 按性别过滤
+    if (filterForm.sex) {
+        filtered = filtered.filter(item => item.sex === filterForm.sex)
+    }
+
     // 按工号过滤
-    if (filterForm.teacherId) {
-        filtered = filtered.filter(item => item.teacherId.includes(filterForm.teacherId))
+    if (filterForm.workNo) {
+        filtered = filtered.filter(item => item.workNo.includes(filterForm.workNo))
+    }
+
+    // 按邮箱过滤
+    if (filterForm.email) {
+        filtered = filtered.filter(item => item.email.includes(filterForm.email))
     }
 
     // 更新分页总数
@@ -211,8 +222,9 @@ const handleSearch = () => {
 // 重置筛选
 const handleReset = () => {
     filterForm.name = ''
-    filterForm.teacherId = ''
-    filterForm.title = ''
+    filterForm.workNo = ''
+    filterForm.sex = ''
+    filterForm.email = ''
     pagination.currentPage = 1
     handleSearch()
 }
@@ -222,9 +234,9 @@ const handleAddTeacher = () => {
     dialogTitle.value = '添加教师'
     Object.assign(teacherForm, {
         id: 0,
-        teacherId: '',
+        workNo: '',
         name: '',
-        gender: 'male',
+        sex: 'male',
         email: '',
     })
     dialogVisible.value = true
@@ -239,7 +251,7 @@ const handleEdit = (row: any) => {
 
 // 查看课程
 const handleViewCourses = (row: any) => {
-    router.push(`/teachers/classes/${row.id}`)
+    router.push(`/teachers/courses/${row.id}`)
 }
 
 // 删除教师

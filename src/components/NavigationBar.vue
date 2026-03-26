@@ -28,7 +28,7 @@ const handleLogout = async () => {
                 <font-awesome-icon icon="fa-solid fa-home" class="icon" />
                 <div class="title">首页</div>
             </router-link>
-            <router-link to="/teaching-classes" class="item" active-class="active-item">
+            <router-link to="/teaching-courses" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
                 <div class="title">教学班级</div>
             </router-link>
