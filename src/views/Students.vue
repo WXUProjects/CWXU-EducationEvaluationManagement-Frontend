@@ -146,30 +146,6 @@ const pagination = reactive({
 // 选中的学生
 const selectedStudents = ref<any[]>([])
 
-// 班级列表（教学班级，临时数据，实际应从API获取）
-const courses = ref([
-    { id: 1, name: '高等数学-2021级-A班', courseCode: 'MATH101', courseName: '高等数学' },
-    { id: 2, name: '大学英语-2022级-B班', courseCode: 'ENG201', courseName: '大学英语' },
-    { id: 3, name: '数据结构-2020级-C班', courseCode: 'CS301', courseName: '数据结构' },
-    { id: 4, name: '计算机网络-2021级-A班', courseCode: 'CS402', courseName: '计算机网络' },
-    { id: 5, name: '软件工程-2022级-B班', courseCode: 'CS501', courseName: '软件工程' },
-    { id: 6, name: '数据库系统-2020级-A班', courseCode: 'CS302', courseName: '数据库系统' },
-    { id: 7, name: '操作系统-2021级-B班', courseCode: 'CS401', courseName: '操作系统' },
-    { id: 8, name: '人工智能导论-2022级-A班', courseCode: 'CS601', courseName: '人工智能导论' }
-])
-
-// 行政班级列表（临时数据，实际应从API获取）
-const administrativeCourses = ref([
-    { id: 1, name: '计算机科学与技术2021级1班', enrollmentYear: '2021', major: '计算机科学与技术', counselor: '张老师' },
-    { id: 2, name: '软件工程2022级2班', enrollmentYear: '2022', major: '软件工程', counselor: '李老师' },
-    { id: 3, name: '网络工程2020级1班', enrollmentYear: '2020', major: '网络工程', counselor: '王老师' },
-    { id: 4, name: '人工智能2021级1班', enrollmentYear: '2021', major: '人工智能', counselor: '赵老师' },
-    { id: 5, name: '数据科学2022级1班', enrollmentYear: '2022', major: '数据科学', counselor: '孙老师' },
-    { id: 6, name: '信息安全2020级1班', enrollmentYear: '2020', major: '信息安全', counselor: '周老师' },
-    { id: 7, name: '物联网工程2021级1班', enrollmentYear: '2021', major: '物联网工程', counselor: '吴老师' },
-    { id: 8, name: '数字媒体技术2022级1班', enrollmentYear: '2022', major: '数字媒体技术', counselor: '郑老师' }
-])
-
 // 临时学生数据（一个学生可以有多个教学班级，但只有一个行政班级）
 const studentsData = ref([
     { id: 1, studentNo: '20210001', idCardNo: '130000000000000001', name: '张三', sex: 'male', },

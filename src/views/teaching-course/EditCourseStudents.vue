@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 //获取id参数
-import type { Course } from '@/utils/type';
+import type { Course } from '@/types/type';
 import { watch, ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()

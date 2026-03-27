@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 //获取id参数
-import type { Course, Teacher } from '@/utils/type';
+import type { Course, Teacher } from '@/types/type';
 import { computed, reactive } from 'vue';
 import { watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'

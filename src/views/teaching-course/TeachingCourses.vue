@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
-import type { Course } from '@/utils/type'
+import type { Course } from '@/types/type'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
