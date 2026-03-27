@@ -94,7 +94,7 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   const userStore = useUserStore()
 
   // 检查路由是否需要认证
@@ -102,14 +102,13 @@ router.beforeEach(async (to, from, next) => {
 
   if (requiresAuth && !userStore.isAuthenticated) {
     // 需要认证但未登录，重定向到登录页
-    next('/')
+    return '/'
   } else if (!requiresAuth && userStore.isAuthenticated && to.path === '/') {
     // 已登录但访问登录页，重定向到首页
-    next('/home')
-  } else {
-    // 其他情况放行
-    next()
+    return '/home'
   }
+  // 其他情况放行
+  // 返回 true 或 undefined 继续导航
 })
 
 export default router

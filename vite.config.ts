@@ -18,12 +18,13 @@ export default defineConfig(({ mode }) => {
     server: {
       // 指定端口 3000
       port: 3000,
-      // 将 /api 请求代理到 http://dev.algo.zhiyuansofts.cn/v1 上
+      // 将 /api 请求代理到后端API服务器
       proxy: {
         '/api': {
           target: env.VITE_API_URL,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '/v1'),
+          // 不需要rewrite，因为API请求路径已包含 /api/v1 前缀
+          // rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
         }
       }
     }
