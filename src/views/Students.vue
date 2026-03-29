@@ -309,7 +309,7 @@ const handleAddStudent = () => {
         studentNo: '',
         idCardNo: '',
         name: '',
-        sex: 'male',
+        sex: '男',
     })
     dialogVisible.value = true
 }
@@ -412,6 +412,7 @@ onMounted(() => {
 
 <style scoped>
 .students-container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px 10px 0 0;
