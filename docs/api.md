@@ -25,6 +25,37 @@ Base URLs:
 
 # Authentication
 
+# Default
+
+## GET 导出（不可用）
+
+GET /api/v1/task/export
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|taskId|query|string| 否 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "导出成功",
+  "filePath": "./tmp/评教结果.xlsx"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
 # 基础信息
 
 ## POST 导入学生信息
@@ -412,6 +443,308 @@ POST /api/v1/base-info/teacher/update
 
 ### 返回数据结构
 
+# 评教任务
+
+## POST 创建评教任务
+
+POST /api/v1/task/create
+
+> Body 请求参数
+
+```json
+{
+  "name": "第一次评教",
+  "courseIds": [
+    1,
+    2,
+    3
+  ]
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+|» name|body|string| 是 |none|
+|» courseIds|body|[integer]| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "创建成功",
+  "id": "1"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» message|string|true|none||none|
+|» data|object|true|none||none|
+|»» id|string|true|none||none|
+|» id|string|true|none||none|
+
+## GET 获取评教任务详情
+
+GET /api/v1/task/detail
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|id|query|string| 否 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "id": "1",
+  "name": "第一次评教",
+  "status": 0,
+  "course": [
+    {
+      "id": "1",
+      "name": "数据结构 - 25-数据结构-1班",
+      "evaluationScore": 0,
+      "evaluationNum": 0,
+      "totalNum": 21
+    },
+    {
+      "id": "2",
+      "name": "高等数学下 - 25-高等数学下-1班",
+      "evaluationScore": 0,
+      "evaluationNum": 0,
+      "totalNum": 21
+    },
+    {
+      "id": "3",
+      "name": "数据结构 - 25-数据结构-2班",
+      "evaluationScore": 0,
+      "evaluationNum": 0,
+      "totalNum": 21
+    }
+  ]
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## GET 获取评教任务列表
+
+GET /api/v1/task/list
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|status|query|string| 否 |-1代表是全部|
+|page|query|string| 否 |none|
+|pageSize|query|string| 否 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "tasks": [
+    {
+      "id": "1",
+      "name": "第一次评教",
+      "status": 0,
+      "course": []
+    }
+  ],
+  "total": "1"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 修改评教状态
+
+POST /api/v1/task/change_status
+
+> Body 请求参数
+
+```json
+{
+  "id": 1,
+  "status": 1
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "修改成功"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## GET 学生端根据学号和任务ID获取课程列表
+
+GET /api/v1/task/student_task_detail
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|taskId|query|string| 否 |none|
+|stuNo|query|string| 否 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "string",
+  "course": [
+    {
+      "id": "string",
+      "name": "string",
+      "evaluationScore": 0,
+      "evaluationNum": 0,
+      "totalNum": 0,
+      "teacher": [
+        {
+          "id": "string",
+          "name": "string",
+          "hasEvaluation": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» message|string|true|none||none|
+|» course|[object]|true|none||none|
+|»» id|string|true|none||none|
+|»» name|string|true|none||none|
+|»» evaluationScore|integer|true|none||none|
+|»» evaluationNum|integer|true|none||none|
+|»» totalNum|integer|true|none||none|
+|»» teacher|[object]|true|none||none|
+|»»» id|string|true|none||none|
+|»»» name|string|true|none||none|
+|»»» hasEvaluation|boolean|true|none||none|
+
+## POST 学生评价
+
+POST /api/v1/task/submit_evaluation
+
+> Body 请求参数
+
+```json
+{
+  "taskId": 1,
+  "courseId": 1,
+  "teacherId": 36,
+  "stuNo": "25346119",
+  "detailScore": "[5,5,5,5,5,5,5,5,5,5]",
+  "score": 50,
+  "comment": "老师讲课非常生动，受益匪浅。"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+|» taskId|body|integer| 是 |任务ID|
+|» courseId|body|integer| 是 |课程ID|
+|» teacherId|body|integer| 是 |教师ID|
+|» stuNo|body|string| 是 |学生学号|
+|» detailScore|body|string| 是 |每个小项得分，是一个字符串json[5,5,5,5]代表第一题5分第二题5分...|
+|» score|body|integer| 是 |总得分|
+|» comment|body|string| 是 |学生评价|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "code": 500,
+  "reason": "",
+  "message": "ERROR: insert or update on table \"evaluation_details\" violates foreign key constraint \"fk_evaluation_tasks_details\" (SQLSTATE 23503)",
+  "metadata": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» message|string|true|none||none|
+
 # 课程管理
 
 ## POST 导入课程信息
@@ -724,6 +1057,10 @@ GET /api/v1/base-info/course/detail
 
 POST /api/v1/base-info/course/edit
 
+1代表上课中
+2代表已结课
+不需要手动结课，在一次评教任务包含课程后将会自动结课
+
 > Body 请求参数
 
 ```json
@@ -736,8 +1073,7 @@ POST /api/v1/base-info/course/edit
     38,
     37,
     36
-  ],
-  "status": 0
+  ]
 }
 ```
 
@@ -824,6 +1160,123 @@ POST /api/v1/base-info/course/edit
 |»»» workNo|string|true|none||none|
 |»»» email|string|true|none||none|
 |»» studentList|[string]|true|none||none|
+
+# 认证模块
+
+## GET 获取学生个人信息
+
+GET /api/v1/auth/student/info
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|stuNo|query|string| 否 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "code": 500,
+  "reason": "",
+  "message": "学号不能为空",
+  "metadata": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 学生登录
+
+POST /api/v1/auth/student/login
+
+> Body 请求参数
+
+```json
+{
+  "stu_no": "25346121",
+  "card_no": "320721200703190000",
+  "task_id": 1
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+|» stuNo|body|string| 是 |none|
+|» cardNo|body|string| 是 |none|
+|» taskId|body|integer| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "登录成功",
+  "data": {
+    "student_no": "25346121",
+    "name": "伞恩晨"
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 管理员登录
+
+POST /api/v1/auth/admin/login
+
+> Body 请求参数
+
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+|» username|body|string| 是 |none|
+|» password|body|string| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "登录成功"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
 
 # 数据模型
 
