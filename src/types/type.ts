@@ -15,11 +15,12 @@ export interface Teacher {
 }
 
 export interface Course {
-    id: number,
-    name: string,
-    status: number,
-    teachers: string[],
-    students: Student[],
+  id: number;
+  courseName: string;
+  className: string;
+  status: number;
+  teacherList: Teacher[];
+  studentList: Student[];
 }
 
 export interface EvaluationTask {

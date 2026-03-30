@@ -1,17 +1,5 @@
+import type { Course } from '@/types/type';
 import { ApiClient } from './api-client';
-import type { Student, Teacher } from '../types/type';
-
-/**
- * 课程基本信息
- */
-export interface CourseBasic {
-  id: number;
-  courseName: string;
-  className: string;
-  status: number;
-  teacherList: Teacher[];
-  studentList: Student[];
-}
 
 /**
  * 课程列表查询参数
@@ -26,7 +14,7 @@ export interface CourseListParams {
  */
 export interface CourseListResponse {
   message: string;
-  data: CourseBasic[];
+  data: Course[];
   total: string;
 }
 
@@ -42,7 +30,7 @@ export interface CourseDetailParams {
  */
 export interface CourseDetailResponse {
   message: string;
-  data: CourseBasic;
+  data: Course;
 }
 
 /**
@@ -61,7 +49,7 @@ export interface EditCourseRequest {
  */
 export interface EditCourseResponse {
   message: string;
-  data: CourseBasic;
+  data: Course;
 }
 
 /**
