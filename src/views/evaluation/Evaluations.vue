@@ -28,7 +28,7 @@
             <div class="task-list">
                 <h3 class="section-title">评教任务</h3>
                 <div class="task-items" v-if="filteredData.length != 0">
-                    <div class="task-item" v-for="(item, index) in filteredData" :key="index" @click="selectTask(item)">
+                    <div class="task-item" v-for="(item, index) in filteredData" :key="index" @click="selectTask(item)" :class="currentTaskId == item.id ? 'active' : ''">
                         <div class="task-header">
                             <span class="task-title">{{ item.name }}</span>
                             <span class="task-status" :class="statusText(item.status)">{{ statusText(item.status)
@@ -345,9 +345,12 @@ const filteredData = computed(() => {
     });
 });
 
+const currentTaskId = ref<string | null>(null);
+
 // 选择任务
 const selectTask = (task: TaskItem) => {
     router.push(`/evaluations/edit/${task.id}`);
+    currentTaskId.value = task.id;
 };
 
 // 新建任务

@@ -12,7 +12,6 @@
         <el-card>
             <el-table :data="filteredStudents" border style="width: 100%">
                 <el-table-column prop="studentNo" label="学号" width="120" />
-                <el-table-column prop="idCardNo" label="身份证号" width="200" />
                 <el-table-column prop="sex" label="性别" width="80" align="center" />
                 <el-table-column prop="name" label="姓名" />
                 <!-- <el-table-column label="操作" width="200" fixed="right" align="center">
@@ -52,6 +51,10 @@ const courseData = ref<Course>({
 })
 
 const fetchCourse = async (id: string) => {
+    // 从当前页面返回，监听到参数变化，id变为0，又执行了一次fetchCourse，导致错误请求
+    if(id === '0'){
+        return
+    }
     const result = await api.course.getCourseDetail(id, { showLoading: true });
     courseData.value = result.data;
     console.log("班级详情:", result.data);
@@ -92,7 +95,7 @@ const handleBack = () => {
     router.back()
 }
 
-watch(route, () => {
+const watchIns = watch(route, () => {
     id = route.params.id || '0';
     fetchCourse(id.toString())
 })
