@@ -2,11 +2,13 @@
     <div class="edit-evaluation-container">
         <!-- 页面标题 -->
         <div class="page-header">
-            <h2>{{ data.title }}</h2>
+            <h2>{{ taskDetail.name || '评教任务详情' }}</h2>
             <div class="header-actions">
-                <el-button @click="handleCancel">取消</el-button>
-                <el-button type="primary" @click="handleSubmit" :loading="loading">保存</el-button>
-                <el-button type="primary" @click="">导出</el-button>
+                <el-button @click="handleCancel">返回</el-button>
+                <el-button type="primary" @click="handleChangeStatus" :loading="statusLoading">
+                    {{ getStatusActionText() }}
+                </el-button>
+                <el-button type="primary" @click="handleExport" :loading="exportLoading">导出结果</el-button>
             </div>
         </div>
 
@@ -19,33 +21,19 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <el-form-item label="任务名称">
-                            <el-input v-model="formData.title" placeholder="请输入任务名称" />
+                            <el-input v-model="formData.name" placeholder="请输入任务名称" :disabled="true" />
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="任务状态">
-                            <el-select v-model="formData.status" placeholder="请选择状态">
-                                <el-option label="未开始" :value="0" />
-                                <el-option label="进行中" :value="1" />
-                                <el-option label="已结束" :value="2" />
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="开始时间">
-                            <el-date-picker v-model="formData.startDate" type="datetime" placeholder="选择开始时间"
-                                style="width: 100%" />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="结束时间">
-                            <el-date-picker v-model="formData.endDate" type="datetime" placeholder="选择结束时间"
-                                style="width: 100%" />
+                            <el-tag :type="getStatusTagType(formData.status)" size="large">
+                                {{ getStatusText(formData.status) }}
+                            </el-tag>
                         </el-form-item>
                     </el-col>
                     <el-col :span="24">
-                        <el-form-item label="任务描述">
-                            <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入任务描述" />
+                        <el-form-item label="任务ID">
+                            <el-input v-model="taskId" placeholder="任务ID" :disabled="true" />
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -53,27 +41,35 @@
         </el-card>
 
         <!-- 进度统计卡片 -->
-        <el-card class="progress-card">
+        <el-card class="progress-card" v-if="taskDetail.course && taskDetail.course.length > 0">
             <template #header>
-                <span>完成进度</span>
+                <span>评价进度统计</span>
             </template>
             <el-row :gutter="20" class="progress-stats">
-                <el-col :span="8">
+                <el-col :span="6">
                     <div class="stat-item">
-                        <div class="stat-value complete">{{ data.complete }}</div>
-                        <div class="stat-label">已完成</div>
+                        <div class="stat-value total">{{ totalStudents }}</div>
+                        <div class="stat-label">总学生数</div>
                     </div>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="6">
                     <div class="stat-item">
-                        <div class="stat-value uncomplete">{{ data.uncomplete }}</div>
-                        <div class="stat-label">未完成</div>
+                        <div class="stat-value complete">{{ totalEvaluated }}</div>
+                        <div class="stat-label">已评价数</div>
                     </div>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="6">
                     <div class="stat-item">
-                        <div class="stat-value total">{{ data.total }}</div>
-                        <div class="stat-label">总数</div>
+                        <div class="stat-value uncomplete">{{ totalStudents - totalEvaluated }}</div>
+                        <div class="stat-label">未评价数</div>
+                    </div>
+                </el-col>
+                <el-col :span="6">
+                    <div class="stat-item">
+                        <div class="stat-value" :class="getCompletionRateClass()">
+                            {{ completionRate }}%
+                        </div>
+                        <div class="stat-label">完成率</div>
                     </div>
                 </el-col>
             </el-row>
@@ -83,159 +79,229 @@
         <el-card class="table-card">
             <template #header>
                 <div class="table-header">
-                    <span>班级列表</span>
-                    <el-button type="primary" size="small" @click="handleAddCourse">
-                        添加班级
-                    </el-button>
+                    <span>班级列表 ({{ taskDetail.course ? taskDetail.course.length : 0 }})</span>
+                    <el-tooltip content="添加班级功能需在新建任务时设置" placement="top">
+                        <el-button type="primary" size="small" disabled>
+                            添加班级
+                        </el-button>
+                    </el-tooltip>
                 </div>
             </template>
-            <el-table :data="data.courses" border style="width: 100%">
-                <el-table-column prop="id" label="ID" width="80" />
-                <el-table-column prop="name" label="班级名称" />
-                <el-table-column prop="complete" label="已完成" width="100" />
-                <el-table-column prop="incomplete" label="未完成" width="100" />
-                <el-table-column prop="total" label="学生总数" width="100" />
-                <el-table-column prop="teacher" label="任课教师" width="100" />
-                <el-table-column label="操作" width="150" fixed="right">
+            <el-table :data="taskDetail.course" border style="width: 100%" v-loading="loading">
+                <el-table-column prop="id" label="课程ID" width="100" />
+                <el-table-column prop="name" label="课程名称" min-width="200" />
+                <el-table-column label="评价进度" width="120">
                     <template #default="{ row }">
-                        <el-button link type="primary" @click="handleToCourse(row)">
-                            查看班级
-                        </el-button>
-                        <el-button link type="danger" @click="handleDeleteCourse(row)">
-                            删除
+                        <el-progress
+                            :percentage="row.totalNum > 0 ? Math.round((row.evaluationNum / row.totalNum) * 100) : 0"
+                            :stroke-width="10"
+                            :color="row.evaluationNum === row.totalNum ? '#67c23a' : '#409eff'"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column label="评价统计" width="180">
+                    <template #default="{ row }">
+                        <div style="font-size: 12px;">
+                            <div>已评价: <span style="color: #67c23a; font-weight: bold;">{{ row.evaluationNum }}</span></div>
+                            <div>未评价: <span style="color: #e6a23c; font-weight: bold;">{{ row.totalNum - row.evaluationNum }}</span></div>
+                            <div>总人数: <span style="color: #409eff; font-weight: bold;">{{ row.totalNum }}</span></div>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="evaluationScore" label="平均得分" width="100">
+                    <template #default="{ row }">
+                        <span v-if="row.evaluationNum > 0" style="color: #f56c6c; font-weight: bold;">
+                            {{ (row.evaluationScore / row.evaluationNum).toFixed(1) }}
+                        </span>
+                        <span v-else style="color: #909399;">-</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120" fixed="right">
+                    <template #default="{ row }">
+                        <el-button link type="primary" @click="handleViewCourse(row)" :disabled="true">
+                            查看详情
                         </el-button>
                     </template>
                 </el-table-column>
-            </el-table>
-        </el-card>
-
-        <!-- 未完成学生列表表格 -->
-        <el-card class="table-card">
-            <template #header>
-                <div class="table-header">
-                    <span>未完成学生</span>
-                    <el-button type="primary" size="small">
-                        导出
-                    </el-button>
-                </div>
-            </template>
-            <el-table border style="width: 100%">
-                <el-table-column label="ID" width="80" />
-                <el-table-column label="学生姓名" />
-                <el-table-column label="行政班级" width="200" />
-                <el-table-column label="评价班级" width="200" />
-                <el-table-column label="受评价教师" width="200" />
             </el-table>
         </el-card>
     </div>
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, reactive } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { api } from '@/api'
+import type { TaskDetailResponse, CourseEvaluationStats } from '@/api/task'
 
 const route = useRoute()
 const router = useRouter()
 
 // 路由参数
-let id = ref(route.params.id)
+const taskId = ref(route.params.id as string)
 
 // 加载状态
 const loading = ref(false)
+const statusLoading = ref(false)
+const exportLoading = ref(false)
 
-// 表单数据
+// 任务详情数据
+const taskDetail = ref<TaskDetailResponse>({
+  id: '',
+  name: '',
+  status: 0,
+  course: []
+})
+
+// 表单数据（用于显示）
 const formData = reactive({
-    title: '评教任务 1',
-    status: 1,
-    startDate: '',
-    endDate: '',
-    description: ''
+  name: '',
+  status: 0
 })
 
-// 页面数据
-const data = ref({
-    id: id.value,
-    title: '评教任务 1',
-    description: '这是任务描述',
-    complete: 98 * 5,
-    uncomplete: 2 * 5,
-    total: 100 * 5,
-    status: 1,
-    startDate: 1000000000,
-    endDate: 1000000000,
-    courses: [
-        { id: 1, name: '班级 1', complete: 98, incomplete: 2, total: 100, teacher: "张教授" },
-        { id: 2, name: '班级 2', complete: 98, incomplete: 2, total: 100, teacher: "李教授" },
-        { id: 3, name: '班级 3', complete: 98, incomplete: 2, total: 100, teacher: "王教授" },
-        { id: 4, name: '班级 4', complete: 98, incomplete: 2, total: 100, teacher: "张教授" },
-        { id: 5, name: '班级 5', complete: 98, incomplete: 2, total: 100, teacher: "孙教授" }
-    ]
+// 获取状态文本
+const getStatusText = (status: number) => {
+  switch (status) {
+    case 0: return '未开始'
+    case 1: return '进行中'
+    case 2: return '已结束'
+    default: return '未知'
+  }
+}
+
+// 获取状态标签类型
+const getStatusTagType = (status: number) => {
+  switch (status) {
+    case 0: return 'info'
+    case 1: return 'success'
+    case 2: return 'warning'
+    default: return 'info'
+  }
+}
+
+// 获取状态操作文本
+const getStatusActionText = () => {
+  switch (formData.status) {
+    case 0: return '开始任务'
+    case 1: return '结束任务'
+    case 2: return '重新开始'
+    default: return '修改状态'
+  }
+}
+
+// 计算统计信息
+const totalStudents = computed(() => {
+  if (!taskDetail.value.course) return 0
+  return taskDetail.value.course.reduce((sum, course) => sum + course.totalNum, 0)
 })
+
+const totalEvaluated = computed(() => {
+  if (!taskDetail.value.course) return 0
+  return taskDetail.value.course.reduce((sum, course) => sum + course.evaluationNum, 0)
+})
+
+const completionRate = computed(() => {
+  if (totalStudents.value === 0) return 0
+  return Math.round((totalEvaluated.value / totalStudents.value) * 100)
+})
+
+const getCompletionRateClass = () => {
+  if (completionRate.value >= 90) return 'complete'
+  if (completionRate.value >= 50) return 'uncomplete'
+  return 'total'
+}
+
+// 获取任务详情
+const fetchTaskDetail = async () => {
+  loading.value = true
+  try {
+    const response = await api.task.getTaskDetail(taskId.value)
+    taskDetail.value = response
+    formData.name = response.name
+    formData.status = response.status
+  } catch (error) {
+    console.error('获取任务详情失败:', error)
+    ElMessage.error('获取任务详情失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 修改任务状态
+const handleChangeStatus = async () => {
+  let newStatus = 0
+  let confirmMessage = ''
+
+  switch (formData.status) {
+    case 0: // 未开始 -> 进行中
+      newStatus = 1
+      confirmMessage = '确定要开始这个评教任务吗？开始后学生将可以提交评价。'
+      break
+    case 1: // 进行中 -> 已结束
+      newStatus = 2
+      confirmMessage = '确定要结束这个评教任务吗？结束后学生将不能再提交评价。'
+      break
+    case 2: // 已结束 -> 重新开始（设为未开始）
+      newStatus = 0
+      confirmMessage = '确定要重新开始这个评教任务吗？任务状态将重置为未开始。'
+      break
+  }
+
+  try {
+    await ElMessageBox.confirm(confirmMessage, '提示', {
+      type: 'warning'
+    })
+
+    statusLoading.value = true
+    await api.task.changeTaskStatus({
+      id: parseInt(taskId.value),
+      status: newStatus
+    })
+
+    formData.status = newStatus
+    taskDetail.value.status = newStatus
+    ElMessage.success('状态修改成功')
+
+    // 重新获取最新数据
+    await fetchTaskDetail()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('状态修改失败')
+    }
+  } finally {
+    statusLoading.value = false
+  }
+}
+
+// 导出评教结果
+const handleExport = () => {
+    ElMessage('导出功能开发中...')
+}
+
+// 查看班级详情
+const handleViewCourse = (course: CourseEvaluationStats) => {
+  ElMessage.info(`查看班级详情功能开发中: ${course.name}`)
+}
+
+// 返回任务列表
+const handleCancel = () => {
+  router.push('/evaluations')
+}
 
 // 监听路由变化
 watch(
-    () => route.params.id,
-    (newId) => {
-        id.value = newId
-        fetchData()
-    }
+  () => route.params.id,
+  (newId) => {
+    taskId.value = newId as string
+    fetchTaskDetail()
+  }
 )
 
-// 获取数据
-const fetchData = async () => {
-    loading.value = true
-    try {
-        // TODO: 调用 API 获取评教任务详情
-        // const res = await getEvaluationDetail(id.value)
-        // data.value = res.data
-        console.log('获取任务详情:', id.value)
-    } catch (error) {
-        ElMessage.error('获取数据失败')
-    } finally {
-        loading.value = false
-    }
-}
-
-// 提交保存
-const handleSubmit = async () => {
-    loading.value = true
-    try {
-        // TODO: 调用 API 保存评教任务
-        // await saveEvaluation({ id: id.value, ...formData })
-        ElMessage.success('保存成功')
-        router.back()
-    } catch (error) {
-        ElMessage.error('保存失败')
-    } finally {
-        loading.value = false
-    }
-}
-
-// 取消操作
-const handleCancel = () => {
-    router.push('/evaluations')
-}
-
-// 添加班级
-const handleAddCourse = () => { }
-
-// 转到班级页面
-const handleToCourse = (row: any) => {
-}
-
-// 删除班级
-const handleDeleteCourse = (row: any) => {
-    ElMessageBox.confirm('确定要删除该班级吗？', '提示', {
-        type: 'warning'
-    }).then(() => {
-        data.value.courses = data.value.courses.filter((item) => item.id !== row.id)
-        ElMessage.success('删除成功')
-    }).catch(() => { })
-}
-
 // 初始化加载
-fetchData()
+onMounted(() => {
+  fetchTaskDetail()
+})
 </script>
 
 <style scoped>
@@ -307,5 +373,25 @@ fetchData()
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* 功能说明样式 */
+.table-card ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.table-card li {
+    margin-bottom: 5px;
+}
+
+.table-card p {
+    margin: 10px 0;
+    color: #606266;
+}
+
+/* 状态标签 */
+.el-tag {
+    margin-right: 5px;
 }
 </style>

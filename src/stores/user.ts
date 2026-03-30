@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { api } from '@/api'
 
 export interface UserInfo {
   id: number
@@ -35,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
   const login = async (username: string, password: string) => {
     try {
       // 这里应该调用真实API，暂时模拟登录
-      // const response = await axios.post('/api/auth/login', { username, password })
+      // const response = await api.auth.adminLogin({ username, password });
       // const { token: newToken, user: userData } = response.data
 
       // 模拟API响应

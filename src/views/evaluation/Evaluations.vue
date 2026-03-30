@@ -17,7 +17,7 @@
                 <h3 class="section-title">筛选选项</h3>
                 <div class="filter-items">
                     <label class="filter-item" v-for="status in filterOptions" :key="status.value">
-                        <input type="checkbox" :value="status.value" v-model="selectedFilters">
+                        <input type="radio" :value="status.value" v-model="selectedStatus" name="statusFilter">
                         <span>{{ status.label }}</span>
                         <span class="count">{{ status.count }}</span>
                     </label>
@@ -29,24 +29,10 @@
                 <h3 class="section-title">评教任务</h3>
                 <div class="task-items" v-if="filteredData.length != 0">
                     <div class="task-item" v-for="(item, index) in filteredData" :key="index"
-                        :class="{ active: currentTask === index }" @click="selectTask(index)">
+                        @click="selectTask(item)">
                         <div class="task-header">
-                            <span class="task-title">{{ item.title }}</span>
-                            <span class="task-status" :class="item.statue">{{ item.statue }}</span>
-                        </div>
-                        <div class="task-info">
-                            <div class="info-row">
-                                <span class="label">总人数</span>
-                                <span class="value">{{ item.total }}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">已完成</span>
-                                <span class="value">{{ item.complete }}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">未完成</span>
-                                <span class="value">{{ item.uncomplete }}</span>
-                            </div>
+                            <span class="task-title">{{ item.name }}</span>
+                            <span class="task-status" :class="statusText(item.status)">{{ statusText(item.status) }}</span>
                         </div>
                     </div>
                 </div>
@@ -285,145 +271,101 @@
 </style>
 
 <script setup lang="ts">
-import router from '@/router';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { api } from '@/api';
+import type { TaskItem } from '@/api/task';
+
+const router = useRouter();
 
 // 搜索关键词
 const searchKeyword = ref('');
 
 // 筛选选项
 const filterOptions = ref([
-    { value: '未开始', label: '未开始', count: 1 },
-    { value: '进行中', label: '进行中', count: 1 },
-    { value: '已结束', label: '已结束', count: 1 }
+  { value: '-1', label: '全部', count: 0 },
+  { value: '0', label: '未开始', count: 0 },
+  { value: '1', label: '进行中', count: 0 },
+  { value: '2', label: '已结束', count: 0 }
 ]);
 
-// 选中的筛选条件
-const selectedFilters = ref<string[]>([]);
+// 选中的筛选条件（单选）
+const selectedStatus = ref<string>('-1');
 
-// 当前选中的任务
-const currentTask = ref<number | null>(null);
+// 任务列表
+const taskList = ref<TaskItem[]>([]);
+const loading = ref(false);
 
-const data = ref([
-    {
-        id: 1,
-        title: '评教任务1',
-        statue: '进行中',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 2,
-        title: '评教任务2',
-        statue: '已结束',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 3,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 4,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 5,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 6,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 7,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 8,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 9,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 10,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 11,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    },
-    {
-        id: 12,
-        title: '评教任务3',
-        statue: '未开始',
-        complete: 98,
-        uncomplete: 2,
-        total: 100
-    }
-])
+// 状态映射函数
+const statusText = (status: number) => {
+  switch (status) {
+    case 0: return '未开始';
+    case 1: return '进行中';
+    case 2: return '已结束';
+    default: return '未知';
+  }
+};
 
-// 筛选后的数据
+// 获取任务列表
+const fetchTaskList = async () => {
+  loading.value = true;
+  try {
+    const params: any = {
+      status: selectedStatus.value
+    };
+    const response = await api.task.getTaskList(params);
+    taskList.value = response.data.tasks;
+
+    // 更新筛选选项计数
+    updateFilterCounts(response.data.tasks);
+  } catch (error) {
+    console.error('获取任务列表失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 更新筛选选项计数
+const updateFilterCounts = (tasks: TaskItem[]) => {
+  const counts = {
+    '-1': tasks.length,
+    '0': tasks.filter(task => task.status === 0).length,
+    '1': tasks.filter(task => task.status === 1).length,
+    '2': tasks.filter(task => task.status === 2).length
+  };
+
+  filterOptions.value = filterOptions.value.map(option => ({
+    ...option,
+    count: counts[option.value as keyof typeof counts] || 0
+  }));
+};
+
+// 筛选后的数据（本地搜索）
 const filteredData = computed(() => {
-    return data.value.filter(item => {
-        // 搜索过滤
-        const matchSearch = item.title.includes(searchKeyword.value);
-        // 筛选过滤
-        const matchFilter = selectedFilters.value.length === 0 ||
-            selectedFilters.value.includes(item.statue);
-        return matchSearch && matchFilter;
-    });
+  return taskList.value.filter(task => {
+    // 搜索过滤
+    const matchSearch = task.name.includes(searchKeyword.value);
+    return matchSearch;
+  });
 });
 
 // 选择任务
-const selectTask = (index: number) => {
-    currentTask.value = index;
-    router.push(`/evaluations/edit/${index}`);
+const selectTask = (task: TaskItem) => {
+  router.push(`/evaluations/edit/${task.id}`);
 };
 
 // 新建任务
 const createNewTask = () => {
-    currentTask.value = null;
-    router.push('/evaluations/add');
+  router.push('/evaluations/add');
 };
+
+// 监听筛选状态变化
+watch(selectedStatus, () => {
+  fetchTaskList();
+});
+
+// 初始化加载
+onMounted(() => {
+  fetchTaskList();
+});
 </script>

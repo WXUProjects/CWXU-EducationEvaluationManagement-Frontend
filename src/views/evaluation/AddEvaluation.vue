@@ -18,24 +18,7 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <el-form-item label="任务名称">
-                            <el-input v-model="formData.title" placeholder="请输入任务名称" />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="开始时间">
-                            <el-date-picker v-model="formData.startDate" type="datetime" placeholder="选择开始时间"
-                                style="width: 100%" />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="结束时间">
-                            <el-date-picker v-model="formData.endDate" type="datetime" placeholder="选择结束时间"
-                                style="width: 100%" />
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="24">
-                        <el-form-item label="任务描述">
-                            <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入任务描述" />
+                            <el-input v-model="formData.name" placeholder="请输入任务名称" />
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -51,27 +34,33 @@
                         <el-button type="primary" size="small" @click="handleAddCourse">
                             添加班级
                         </el-button>
-                        <el-button type="primary" size="small" @click="handleAddCourse">
+                        <el-button type="primary" size="small" @click="handleAddAllCourses">
                             添加全部教学班级
-                        </el-button>
-                        <el-button type="primary" size="small" @click="handleAddCourse">
-                            添加全部行政班级
                         </el-button>
                     </div>
                 </div>
             </template>
-            <el-table :data="data.courses" border style="width: 100%">
+            <el-table :data="courseList" border style="width: 100%" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55" />
                 <el-table-column prop="id" label="ID" width="80" />
-                <el-table-column prop="name" label="班级名称" />
-                <el-table-column prop="teacher" label="被评价教师" width="100" />
-                <el-table-column prop="total" label="学生总数" width="100" />
+                <el-table-column prop="className" label="班级名称" />
+                <el-table-column label="任课教师" width="200">
+                    <template #default="{ row }">
+                        <div class="tag-container">
+                            <el-tag v-for="(teacher, index) in row.teacherList" :key="index" size="small" class="tag">
+                                {{ teacher.name }}
+                            </el-tag>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="studentList.length" label="学生总数" width="100" />
                 <el-table-column label="操作" width="150" fixed="right">
                     <template #default="{ row }">
-                        <el-button link type="primary" @click="handleToCourse(row)">
+                        <el-button link type="primary" @click="handleViewCourse(row)">
                             查看班级
                         </el-button>
-                        <el-button link type="danger" @click="handleDeleteCourse(row)">
-                            删除
+                        <el-button link type="danger" @click="handleRemoveCourse(row)">
+                            移除
                         </el-button>
                     </template>
                 </el-table-column>
@@ -84,115 +73,83 @@
                 <div class="table-header">
                     <span>编辑评教问题</span>
                     <div class="table-header-acions">
-                        <el-button type="primary" size="small" @click="handleAddCourse">
+                        <el-button type="primary" size="small" @click="handleImportQuestions" disabled>
                             导入评教问题
                         </el-button>
-                        <el-button type="primary" size="small" @click="handleAddCourse">
+                        <el-button type="primary" size="small" @click="handleUseDefaultQuestions" disabled>
                             使用默认评教问题
                         </el-button>
                     </div>
                 </div>
             </template>
-            <el-table>
-                <el-column label="问题" width="300"></el-column>
-                <el-column label="答案"></el-column>
-                <el-column label="总分" width="100"></el-column>
-            </el-table>
+            <div style="padding: 20px; text-align: center; color: #999;">
+                评教问题管理功能开发中
+            </div>
         </el-card>
     </div>
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, reactive } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { api } from '@/api'
+import type { Course } from '@/types/type'
 
-const route = useRoute()
 const router = useRouter()
-
-// 路由参数
-let id = ref(route.params.id)
 
 // 加载状态
 const loading = ref(false)
 
 // 表单数据
 const formData = reactive({
-    title: '评教任务 1',
-    status: 1,
-    startDate: '',
-    endDate: '',
-    description: ''
+    name: '',
+    courseIds: [] as number[]
 })
 
-// 页面数据
-const data = ref({
-    id: id.value,
-    title: '评教任务 1',
-    description: '这是任务描述',
-    complete: 98 * 5,
-    uncomplete: 2 * 5,
-    total: 100 * 5,
-    status: 1,
-    startDate: 1000000000,
-    endDate: 1000000000,
-    courses: [
-        { id: 1, name: '班级 1', complete: 0, incomplete: 100, total: 100, teacher: "张教授" },
-        { id: 2, name: '班级 2', complete: 0, incomplete: 100, total: 100, teacher: "李教授" },
-        { id: 3, name: '班级 3', complete: 0, incomplete: 100, total: 100, teacher: "王教授" },
-        { id: 4, name: '班级 4', complete: 0, incomplete: 100, total: 100, teacher: "张教授" },
-        { id: 5, name: '班级 5', complete: 0, incomplete: 100, total: 100, teacher: "孙教授" }
-    ]
-})
+// 课程列表
+const courseList = ref<Course[]>([])
+// 表格选中的课程
+const selectedCourses = ref<Course[]>([])
 
-// 计算完成率
-const completionRate = computed(() => {
-    return data.value.total > 0
-        ? Math.round((data.value.complete / data.value.total) * 100)
-        : 0
-})
-
-// 计算单行进度
-const calculateProgress = (row: any) => {
-    return row.total > 0
-        ? Math.round((row.complete / row.total) * 100)
-        : 0
-}
-
-// 监听路由变化
-watch(
-    () => route.params.id,
-    (newId) => {
-        id.value = newId
-        fetchData()
-    }
-)
-
-// 获取数据
-const fetchData = async () => {
-    loading.value = true
+// 获取课程列表
+const fetchCourseList = async () => {
     try {
-        // TODO: 调用 API 获取评教任务详情
-        // const res = await getEvaluationDetail(id.value)
-        // data.value = res.data
-        console.log('获取任务详情:', id.value)
+        const response = await api.course.getCourseList()
+        courseList.value = response.data
     } catch (error) {
-        ElMessage.error('获取数据失败')
-    } finally {
-        loading.value = false
+        console.error('获取课程列表失败:', error)
+        ElMessage.error('获取课程列表失败')
     }
 }
 
-// 提交保存
+// 表格选择变化
+const handleSelectionChange = (selection: Course[]) => {
+    selectedCourses.value = selection
+    formData.courseIds = selection.map(course => course.id)
+}
+
+// 提交表单
 const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+        ElMessage.warning('请输入任务名称')
+        return
+    }
+    if (formData.courseIds.length === 0) {
+        ElMessage.warning('请至少选择一个课程')
+        return
+    }
+
     loading.value = true
     try {
-        // TODO: 调用 API 保存评教任务
-        // await saveEvaluation({ id: id.value, ...formData })
-        ElMessage.success('保存成功')
-        router.back()
+        await api.task.createTask({
+            name: formData.name,
+            courseIds: formData.courseIds
+        })
+        ElMessage.success('创建成功')
+        router.push('/evaluations')
     } catch (error) {
-        ElMessage.error('保存失败')
+        ElMessage.error('创建失败')
     } finally {
         loading.value = false
     }
@@ -203,25 +160,48 @@ const handleCancel = () => {
     router.push('/evaluations')
 }
 
-// 添加班级
-const handleAddCourse = () => { }
-
-// 转到班级页面
-const handleToCourse = (row: any) => {
+// 添加单个课程（选择对话框）
+const handleAddCourse = () => {
+    ElMessage.info('添加班级功能开发中')
 }
 
-// 删除班级
-const handleDeleteCourse = (row: any) => {
-    ElMessageBox.confirm('确定要删除该班级吗？', '提示', {
-        type: 'warning'
-    }).then(() => {
-        data.value.courses = data.value.courses.filter((item) => item.id !== row.id)
-        ElMessage.success('删除成功')
-    }).catch(() => { })
+// 添加全部教学班级
+const handleAddAllCourses = () => {
+    if (courseList.value.length === 0) {
+        ElMessage.warning('暂无课程可添加')
+        return
+    }
+    selectedCourses.value = [...courseList.value]
+    formData.courseIds = courseList.value.map(course => course.id)
+    ElMessage.success(`已添加全部 ${courseList.value.length} 个课程`)
 }
 
-// 初始化加载
-fetchData()
+// 查看班级详情
+const handleViewCourse = (course: Course) => {
+    ElMessage.info(`查看班级 ${course.className} 详情功能开发中`)
+}
+
+// 移除已选课程
+const handleRemoveCourse = (course: Course) => {
+    selectedCourses.value = selectedCourses.value.filter(c => c.id !== course.id)
+    formData.courseIds = formData.courseIds.filter(id => id !== course.id)
+    ElMessage.success(`已移除班级 ${course.className}`)
+}
+
+// 导入评教问题
+const handleImportQuestions = () => {
+    ElMessage.info('导入评教问题功能开发中')
+}
+
+// 使用默认评教问题
+const handleUseDefaultQuestions = () => {
+    ElMessage.info('使用默认评教问题功能开发中')
+}
+
+// 初始化加载课程列表
+onMounted(() => {
+    fetchCourseList()
+})
 </script>
 
 <style scoped>
@@ -293,5 +273,22 @@ fetchData()
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
