@@ -1,5 +1,40 @@
 <script setup lang="ts">
+import { api } from '@/api';
 import router from '@/router';
+import { onMounted, ref } from 'vue';
+const data = ref({
+    notStarted: 0,
+    finished: 0,
+    inProgress: 0
+})
+
+const fetchTaskList = async () => {
+    const result = await api.task.getTaskList({ status: '-1' })
+
+    console.log(result);
+
+
+    // 统计状态 0->未开始 1->进行中 2->已结束
+    data.value.notStarted = 0;
+    data.value.finished = 0;
+    data.value.inProgress = 0;
+
+    result.data.tasks.forEach(task => {
+        console.log(task.status, typeof task.status);
+
+        if (task.status === 0) {
+            data.value.notStarted++;
+        } else if (task.status === 1) {
+            data.value.inProgress++;
+        } else if (task.status === 2) {
+            data.value.finished++;
+        }
+    });
+}
+
+onMounted(() => {
+    fetchTaskList();
+})
 </script>
 
 <template>
@@ -11,19 +46,19 @@ import router from '@/router';
             <el-row :gutter="20" class="progress-stats">
                 <el-col :span="8">
                     <div class="stat-item">
-                        <div class="stat-value complete">1</div>
+                        <div class="stat-value complete">{{ data.inProgress }}</div>
                         <div class="stat-label">进行中</div>
                     </div>
                 </el-col>
                 <el-col :span="8">
                     <div class="stat-item">
-                        <div class="stat-value uncomplete">1</div>
+                        <div class="stat-value uncomplete">{{ data.finished }}</div>
                         <div class="stat-label">已结束</div>
                     </div>
                 </el-col>
                 <el-col :span="8">
                     <div class="stat-item">
-                        <div class="stat-value total">1</div>
+                        <div class="stat-value total">{{ data.notStarted }}</div>
                         <div class="stat-label">未开始</div>
                     </div>
                 </el-col>
