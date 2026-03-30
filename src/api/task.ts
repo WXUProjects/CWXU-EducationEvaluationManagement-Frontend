@@ -83,8 +83,11 @@ export interface TaskItem {
  * 评教任务列表响应数据
  */
 export interface TaskListResponse {
-  tasks: TaskItem[];
-  total: string;
+  message: string;
+  data: {
+    tasks: TaskItem[];
+    total: string;
+  };
 }
 
 /**

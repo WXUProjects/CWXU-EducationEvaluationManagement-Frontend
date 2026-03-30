@@ -28,11 +28,11 @@
             <div class="task-list">
                 <h3 class="section-title">评教任务</h3>
                 <div class="task-items" v-if="filteredData.length != 0">
-                    <div class="task-item" v-for="(item, index) in filteredData" :key="index"
-                        @click="selectTask(item)">
+                    <div class="task-item" v-for="(item, index) in filteredData" :key="index" @click="selectTask(item)">
                         <div class="task-header">
                             <span class="task-title">{{ item.name }}</span>
-                            <span class="task-status" :class="statusText(item.status)">{{ statusText(item.status) }}</span>
+                            <span class="task-status" :class="statusText(item.status)">{{ statusText(item.status)
+                                }}</span>
                         </div>
                     </div>
                 </div>
@@ -271,7 +271,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
 import type { TaskItem } from '@/api/task';
@@ -283,10 +283,10 @@ const searchKeyword = ref('');
 
 // 筛选选项
 const filterOptions = ref([
-  { value: '-1', label: '全部', count: 0 },
-  { value: '0', label: '未开始', count: 0 },
-  { value: '1', label: '进行中', count: 0 },
-  { value: '2', label: '已结束', count: 0 }
+    { value: '-1', label: '全部', count: 0 },
+    { value: '0', label: '未开始', count: 0 },
+    { value: '1', label: '进行中', count: 0 },
+    { value: '2', label: '已结束', count: 0 }
 ]);
 
 // 选中的筛选条件（单选）
@@ -298,74 +298,66 @@ const loading = ref(false);
 
 // 状态映射函数
 const statusText = (status: number) => {
-  switch (status) {
-    case 0: return '未开始';
-    case 1: return '进行中';
-    case 2: return '已结束';
-    default: return '未知';
-  }
+    switch (status) {
+        case 0: return '未开始';
+        case 1: return '进行中';
+        case 2: return '已结束';
+        default: return '未知';
+    }
 };
 
 // 获取任务列表
 const fetchTaskList = async () => {
-  loading.value = true;
-  try {
-    const params: any = {
-      status: selectedStatus.value
-    };
-    const response = await api.task.getTaskList(params);
-    taskList.value = response.data.tasks;
-
-    // 更新筛选选项计数
-    updateFilterCounts(response.data.tasks);
-  } catch (error) {
-    console.error('获取任务列表失败:', error);
-  } finally {
-    loading.value = false;
-  }
+    loading.value = true;
+    try {
+        const response = await api.task.getTaskList({ status: '-1' });
+        taskList.value = response.data.tasks;
+        // 更新筛选选项计数
+        updateFilterCounts(response.data.tasks);
+    } catch (error) {
+        console.error('获取任务列表失败:', error);
+    } finally {
+        loading.value = false;
+    }
 };
 
 // 更新筛选选项计数
 const updateFilterCounts = (tasks: TaskItem[]) => {
-  const counts = {
-    '-1': tasks.length,
-    '0': tasks.filter(task => task.status === 0).length,
-    '1': tasks.filter(task => task.status === 1).length,
-    '2': tasks.filter(task => task.status === 2).length
-  };
+    const counts = {
+        '-1': tasks.length,
+        '0': tasks.filter(task => task.status === 0).length,
+        '1': tasks.filter(task => task.status === 1).length,
+        '2': tasks.filter(task => task.status === 2).length
+    };
 
-  filterOptions.value = filterOptions.value.map(option => ({
-    ...option,
-    count: counts[option.value as keyof typeof counts] || 0
-  }));
+    filterOptions.value = filterOptions.value.map(option => ({
+        ...option,
+        count: counts[option.value as keyof typeof counts] || 0
+    }));
 };
 
-// 筛选后的数据（本地搜索）
+// 筛选后的数据
 const filteredData = computed(() => {
-  return taskList.value.filter(task => {
-    // 搜索过滤
-    const matchSearch = task.name.includes(searchKeyword.value);
-    return matchSearch;
-  });
+    return taskList.value.filter(task => {
+        const statusMatch = selectedStatus.value === '-1' || task.status.toString() === selectedStatus.value;
+        const matchSearch = task.name.includes(searchKeyword.value);
+        return statusMatch && matchSearch;
+    });
 });
 
 // 选择任务
 const selectTask = (task: TaskItem) => {
-  router.push(`/evaluations/edit/${task.id}`);
+    router.push(`/evaluations/edit/${task.id}`);
 };
 
 // 新建任务
 const createNewTask = () => {
-  router.push('/evaluations/add');
+    router.push('/evaluations/add');
 };
 
-// 监听筛选状态变化
-watch(selectedStatus, () => {
-  fetchTaskList();
-});
 
 // 初始化加载
 onMounted(() => {
-  fetchTaskList();
+    fetchTaskList();
 });
 </script>

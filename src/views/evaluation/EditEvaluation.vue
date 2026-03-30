@@ -79,12 +79,7 @@
         <el-card class="table-card">
             <template #header>
                 <div class="table-header">
-                    <span>班级列表 ({{ taskDetail.course ? taskDetail.course.length : 0 }})</span>
-                    <el-tooltip content="添加班级功能需在新建任务时设置" placement="top">
-                        <el-button type="primary" size="small" disabled>
-                            添加班级
-                        </el-button>
-                    </el-tooltip>
+                    <span>查看详情 ({{ taskDetail.course ? taskDetail.course.length : 0 }})</span>
                 </div>
             </template>
             <el-table :data="taskDetail.course" border style="width: 100%" v-loading="loading">
