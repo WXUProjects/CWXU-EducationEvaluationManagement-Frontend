@@ -109,12 +109,6 @@
                             :value="teacher.id" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-radio-group v-model="courseForm.status">
-                        <el-radio label="active">活跃</el-radio>
-                        <el-radio label="graduated">已结课</el-radio>
-                    </el-radio-group>
-                </el-form-item>
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
@@ -196,7 +190,6 @@ const courseForm = reactive({
     courseName: '',
     className: '',
     teacherIds: [] as number[],
-    status: 'active' // active 或 graduated
 })
 
 // 导入相关状态
@@ -468,15 +461,12 @@ const handleSubmit = async () => {
     try {
         await courseFormRef.value.validate()
 
-        // 将字符串状态转换为数字：active -> 1 (上课中), graduated -> 2 (已结课)
-        const statusValue = courseForm.status === 'active' ? 1 : 2
         try {
             const editData = {
                 courseId: courseForm.id,
                 courseName: courseForm.courseName,
                 className: courseForm.className,
                 teacherIds: courseForm.teacherIds,
-                status: statusValue
             }
             const result = await api.course.editCourse(editData, { showSuccess: true })
             ElMessage.success('更新成功')
@@ -487,7 +477,7 @@ const handleSubmit = async () => {
                     id: courseForm.id,
                     className: courseForm.className,
                     courseName: courseForm.courseName,
-                    status: statusValue,
+                    status: coursesData.value[index]?.status || 1, // 保留原有状态
                     teacherList: teacherList.value.filter(t => courseForm.teacherIds.includes(t.id)).map(t => t.name),
                     studentList: coursesData.value[index]?.studentList || [], // 保留原有学生
                 }

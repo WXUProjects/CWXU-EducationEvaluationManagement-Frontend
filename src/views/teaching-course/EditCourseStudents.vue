@@ -2,29 +2,25 @@
     <div class="edit-course-students-container">
         <div class="header">
             <div class="title">管理班级学生</div>
-            <div class="name">{{ courseData.name }}</div>
+            <div class="name">{{ courseData.className }}</div>
         </div>
         <div class="actions">
             <el-button @click="handleBack">返回</el-button>
-            <el-button>导入学生</el-button>
-            <el-button>添加单个学生</el-button>
+            <!-- <el-button>导入学生</el-button> -->
+            <!-- <el-button>添加单个学生</el-button> -->
         </div>
         <el-card>
             <el-table :data="filteredStudents" border style="width: 100%">
                 <el-table-column prop="studentNo" label="学号" width="120" />
                 <el-table-column prop="idCardNo" label="身份证号" width="200" />
-                <el-table-column prop="sex" label="性别" width="80" align="center">
-                    <template #default="{ row }">
-                        {{ row.sex === 'male' ? '男' : '女' }}
-                    </template>
-                </el-table-column>
+                <el-table-column prop="sex" label="性别" width="80" align="center" />
                 <el-table-column prop="name" label="姓名" />
-                <el-table-column label="操作" width="200" fixed="right" align="center">
+                <!-- <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" size="small">详情</el-button>
                         <el-button link type="danger" size="small">删除</el-button>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
             </el-table>
         </el-card>
         <div class="pagination">
@@ -38,38 +34,29 @@
 
 <script setup lang="ts">
 //获取id参数
+import { api } from '@/api';
 import type { Course } from '@/types/type';
 import { watch, ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
-let id = route.params.id
+let id = route.params.id || '0'
 
 const courseData = ref<Course>({
-    id: 1,
-    name: '高等数学-2021级-A班',
-    teachers: ['张三'],
-    status: 1,
-    students: [
-        { id: 1, studentNo: '20210001', idCardNo: '130000000000000001', name: '张三', sex: 'male' },
-        { id: 2, studentNo: '20210002', idCardNo: '130000000000000001', name: '李四', sex: 'female' },
-        { id: 3, studentNo: '20210003', idCardNo: '130000000000000001', name: '王五', sex: 'male' },
-        { id: 4, studentNo: '20210004', idCardNo: '130000000000000001', name: '赵六', sex: 'male' },
-        { id: 5, studentNo: '20200005', idCardNo: '130000000000000001', name: '钱七', sex: 'female' },
-        { id: 6, studentNo: '20210006', idCardNo: '130000000000000001', name: '孙八', sex: 'male' },
-        { id: 7, studentNo: '20210007', idCardNo: '130000000000000001', name: '周九', sex: 'female' },
-        { id: 8, studentNo: '20200008', idCardNo: '130000000000000001', name: '吴十', sex: 'male' },
-        { id: 1, studentNo: '20210001', idCardNo: '130000000000000001', name: '张三', sex: 'male' },
-        { id: 2, studentNo: '20210002', idCardNo: '130000000000000001', name: '李四', sex: 'female' },
-        { id: 3, studentNo: '20210003', idCardNo: '130000000000000001', name: '王五', sex: 'male' },
-        { id: 4, studentNo: '20210004', idCardNo: '130000000000000001', name: '赵六', sex: 'male' },
-        { id: 5, studentNo: '20200005', idCardNo: '130000000000000001', name: '钱七', sex: 'female' },
-        { id: 6, studentNo: '20210006', idCardNo: '130000000000000001', name: '孙八', sex: 'male' },
-        { id: 7, studentNo: '20210007', idCardNo: '130000000000000001', name: '周九', sex: 'female' },
-        { id: 8, studentNo: '20200008', idCardNo: '130000000000000001', name: '吴十', sex: 'male' },
-    ]
+    id: 0,
+    courseName: '',
+    className: '',
+    status: 0,
+    teacherList: [],
+    studentList: []
+})
+
+const fetchCourse = async (id: string) => {
+    const result = await api.course.getCourseDetail(id, { showLoading: true });
+    courseData.value = result.data;
+    console.log("班级详情:", result.data);
+
 }
-)
 
 // 分页配置
 const pagination = reactive({
@@ -90,7 +77,7 @@ const handleCurrentChange = (val: number) => {
 }
 
 const filteredStudents = computed(() => {
-    let filtered = courseData.value.students
+    let filtered = courseData.value.studentList
 
     // 更新分页总数
     pagination.total = filtered.length
@@ -106,11 +93,13 @@ const handleBack = () => {
 }
 
 watch(route, () => {
-    id = route.params.id
+    id = route.params.id || '0';
+    fetchCourse(id.toString())
 })
 
 onMounted(() => {
-    pagination.total = courseData.value.students.length
+    pagination.total = courseData.value.studentList.length
+    fetchCourse(id.toString())
 })
 </script>
 

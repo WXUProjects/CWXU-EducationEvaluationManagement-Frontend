@@ -41,7 +41,6 @@ export interface EditCourseRequest {
   courseName: string;
   className: string;
   teacherIds: number[];
-  status: number;
 }
 
 /**
