@@ -104,8 +104,18 @@
                     <el-input v-model="courseForm.className" placeholder="请输入班级名称" />
                 </el-form-item>
                 <el-form-item label="授课教师" prop="teacherIds">
-                    <el-select v-model="courseForm.teacherIds" multiple placeholder="请选择授课教师" style="width: 100%">
-                        <el-option v-for="teacher in teacherList" :key="teacher.id" :label="teacher.name"
+                    <el-select
+                        v-model="courseForm.teacherIds"
+                        multiple
+                        filterable
+                        remote
+                        reserve-keyword
+                        placeholder="请输入教师姓名或工号搜索"
+                        :remote-method="searchTeachers"
+                        :loading="teacherSearchLoading"
+                        style="width: 100%"
+                    >
+                        <el-option v-for="teacher in searchedTeacherList" :key="teacher.id" :label="`${teacher.name} (${teacher.workNo})`"
                             :value="teacher.id" />
                     </el-select>
                 </el-form-item>
@@ -160,6 +170,7 @@ import { UploadFilled, Document } from '@element-plus/icons-vue'
 import type { Course } from '@/types/type'
 import { useRouter } from 'vue-router'
 import { api } from '@/api'
+import type { TeacherListResponse } from '@/api/baseInfo'
 
 const router = useRouter()
 
@@ -196,6 +207,11 @@ const courseForm = reactive({
 const importDialogVisible = ref(false)
 const importLoading = ref(false)
 const uploadFile = ref<File | null>(null)
+
+// 教师搜索相关状态
+const teacherSearchLoading = ref(false)
+const searchedTeacherList = ref<any[]>([])
+let searchTimeout: number | null = null
 
 // 表单验证规则
 const courseRules = {
@@ -272,6 +288,58 @@ const fetchTeacherList = async () => {
     }
 }
 
+// 判断字符串是否由数字组成
+const isNum = (value: string) => {
+    return /^\d+$/.test(value)
+}
+
+// 搜索教师
+const searchTeachers = (query: string) => {
+    // 清除之前的定时器
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+
+    // 设置新的防抖定时器
+    searchTimeout = setTimeout(async () => {
+        if (query.trim() === '') {
+            searchedTeacherList.value = []
+            return
+        }
+
+        teacherSearchLoading.value = true
+        try {
+            let result;
+            if(isNum(query)){
+                result = await api.baseInfo.getTeacherList({
+                    page: 1,
+                    pageSize: 20,
+                    workNo: query
+                })
+            }else{
+                result = await api.baseInfo.getTeacherList({
+                    page: 1,
+                    pageSize: 20,
+                    name: query
+                })
+            }
+            searchedTeacherList.value = result.data
+
+            // 将搜索到的教师合并到teacherList中作为缓存
+            result.data.forEach(teacher => {
+                if (!teacherList.value.some(t => t.id === teacher.id)) {
+                    teacherList.value.push(teacher)
+                }
+            })
+        } catch (error) {
+            console.error('搜索教师失败:', error)
+            searchedTeacherList.value = []
+        } finally {
+            teacherSearchLoading.value = false
+        }
+    }, 300) // 300ms防抖
+}
+
 // 搜索
 const handleSearch = () => {
     pagination.currentPage = 1
@@ -291,6 +359,8 @@ const handleReset = () => {
 // 添加教学班级
 const handleAddCourse = () => {
     dialogTitle.value = '添加教学班级'
+    // 清空搜索列表
+    searchedTeacherList.value = []
     Object.assign(courseForm, {
         id: 0,
         courseName: '',
@@ -409,10 +479,16 @@ const handleEdit = (row: Course) => {
     let className = row.className;
     // 将教师名称数组转换为ID数组
     const teacherIds: number[] = []
+    const selectedTeachers: any[] = []
     row.teacherList.forEach(teacher => {
         const found = teacherList.value.find(t => t.name === teacher.name)
-        if (found) teacherIds.push(found.id)
+        if (found) {
+            teacherIds.push(found.id)
+            selectedTeachers.push(found)
+        }
     })
+    // 将已选择的教师添加到搜索列表中，在select中显示
+    searchedTeacherList.value = selectedTeachers
     Object.assign(courseForm, {
         id: row.id,
         courseName,
@@ -451,6 +527,13 @@ const handleCurrentChange = (val: number) => {
 const handleDialogClose = () => {
     if (courseFormRef.value) {
         courseFormRef.value.resetFields()
+    }
+    // 清空搜索列表
+    searchedTeacherList.value = []
+    // 清理搜索定时器
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+        searchTimeout = null
     }
 }
 

@@ -11,17 +11,12 @@ const data = ref({
 const fetchTaskList = async () => {
     const result = await api.task.getTaskList({ status: '-1' })
 
-    console.log(result);
-
-
     // 统计状态 0->未开始 1->进行中 2->已结束
     data.value.notStarted = 0;
     data.value.finished = 0;
     data.value.inProgress = 0;
 
     result.data.tasks.forEach(task => {
-        console.log(task.status, typeof task.status);
-
         if (task.status === 0) {
             data.value.notStarted++;
         } else if (task.status === 1) {

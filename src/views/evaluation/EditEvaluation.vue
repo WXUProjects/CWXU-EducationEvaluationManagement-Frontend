@@ -19,7 +19,7 @@
             </template>
             <el-form :model="formData" label-width="100px">
                 <el-row :gutter="20">
-                    <el-col :span="12">
+                    <el-col :span="24">
                         <el-form-item label="任务名称">
                             <el-input v-model="formData.name" placeholder="请输入任务名称" :disabled="true" />
                         </el-form-item>
@@ -29,11 +29,6 @@
                             <el-tag :type="getStatusTagType(formData.status)" size="large">
                                 {{ getStatusText(formData.status) }}
                             </el-tag>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="24">
-                        <el-form-item label="任务ID">
-                            <el-input v-model="taskId" placeholder="任务ID" :disabled="true" />
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -89,16 +84,16 @@
                     <template #default="{ row }">
                         <el-progress
                             :percentage="row.totalNum > 0 ? Math.round((row.evaluationNum / row.totalNum) * 100) : 0"
-                            :stroke-width="10"
-                            :color="row.evaluationNum === row.totalNum ? '#67c23a' : '#409eff'"
-                        />
+                            :stroke-width="10" :color="row.evaluationNum === row.totalNum ? '#67c23a' : '#409eff'" />
                     </template>
                 </el-table-column>
                 <el-table-column label="评价统计" width="180">
                     <template #default="{ row }">
                         <div style="font-size: 12px;">
-                            <div>已评价: <span style="color: #67c23a; font-weight: bold;">{{ row.evaluationNum }}</span></div>
-                            <div>未评价: <span style="color: #e6a23c; font-weight: bold;">{{ row.totalNum - row.evaluationNum }}</span></div>
+                            <div>已评价: <span style="color: #67c23a; font-weight: bold;">{{ row.evaluationNum }}</span>
+                            </div>
+                            <div>未评价: <span style="color: #e6a23c; font-weight: bold;">{{ row.totalNum -
+                                row.evaluationNum }}</span></div>
                             <div>总人数: <span style="color: #409eff; font-weight: bold;">{{ row.totalNum }}</span></div>
                         </div>
                     </template>
@@ -143,130 +138,130 @@ const exportLoading = ref(false)
 
 // 任务详情数据
 const taskDetail = ref<TaskDetailResponse>({
-  id: '',
-  name: '',
-  status: 0,
-  course: []
+    id: '',
+    name: '',
+    status: 0,
+    course: []
 })
 
 // 表单数据（用于显示）
 const formData = reactive({
-  name: '',
-  status: 0
+    name: '',
+    status: 0
 })
 
 // 获取状态文本
 const getStatusText = (status: number) => {
-  switch (status) {
-    case 0: return '未开始'
-    case 1: return '进行中'
-    case 2: return '已结束'
-    default: return '未知'
-  }
+    switch (status) {
+        case 0: return '未开始'
+        case 1: return '进行中'
+        case 2: return '已结束'
+        default: return '未知'
+    }
 }
 
 // 获取状态标签类型
 const getStatusTagType = (status: number) => {
-  switch (status) {
-    case 0: return 'info'
-    case 1: return 'success'
-    case 2: return 'warning'
-    default: return 'info'
-  }
+    switch (status) {
+        case 0: return 'info'
+        case 1: return 'success'
+        case 2: return 'warning'
+        default: return 'info'
+    }
 }
 
 // 获取状态操作文本
 const getStatusActionText = () => {
-  switch (formData.status) {
-    case 0: return '开始任务'
-    case 1: return '结束任务'
-    case 2: return '重新开始'
-    default: return '修改状态'
-  }
+    switch (formData.status) {
+        case 0: return '开始任务'
+        case 1: return '结束任务'
+        case 2: return '重新开始'
+        default: return '修改状态'
+    }
 }
 
 // 计算统计信息
 const totalStudents = computed(() => {
-  if (!taskDetail.value.course) return 0
-  return taskDetail.value.course.reduce((sum, course) => sum + course.totalNum, 0)
+    if (!taskDetail.value.course) return 0
+    return taskDetail.value.course.reduce((sum, course) => sum + course.totalNum, 0)
 })
 
 const totalEvaluated = computed(() => {
-  if (!taskDetail.value.course) return 0
-  return taskDetail.value.course.reduce((sum, course) => sum + course.evaluationNum, 0)
+    if (!taskDetail.value.course) return 0
+    return taskDetail.value.course.reduce((sum, course) => sum + course.evaluationNum, 0)
 })
 
 const completionRate = computed(() => {
-  if (totalStudents.value === 0) return 0
-  return Math.round((totalEvaluated.value / totalStudents.value) * 100)
+    if (totalStudents.value === 0) return 0
+    return Math.round((totalEvaluated.value / totalStudents.value) * 100)
 })
 
 const getCompletionRateClass = () => {
-  if (completionRate.value >= 90) return 'complete'
-  if (completionRate.value >= 50) return 'uncomplete'
-  return 'total'
+    if (completionRate.value >= 90) return 'complete'
+    if (completionRate.value >= 50) return 'uncomplete'
+    return 'total'
 }
 
 // 获取任务详情
 const fetchTaskDetail = async () => {
-  loading.value = true
-  try {
-    const response = await api.task.getTaskDetail(taskId.value)
-    taskDetail.value = response
-    formData.name = response.name
-    formData.status = response.status
-  } catch (error) {
-    console.error('获取任务详情失败:', error)
-    ElMessage.error('获取任务详情失败')
-  } finally {
-    loading.value = false
-  }
+    loading.value = true
+    try {
+        const response = await api.task.getTaskDetail(taskId.value)
+        taskDetail.value = response
+        formData.name = response.name
+        formData.status = response.status
+    } catch (error) {
+        console.error('获取任务详情失败:', error)
+        ElMessage.error('获取任务详情失败')
+    } finally {
+        loading.value = false
+    }
 }
 
 // 修改任务状态
 const handleChangeStatus = async () => {
-  let newStatus = 0
-  let confirmMessage = ''
+    let newStatus = 0
+    let confirmMessage = ''
 
-  switch (formData.status) {
-    case 0: // 未开始 -> 进行中
-      newStatus = 1
-      confirmMessage = '确定要开始这个评教任务吗？开始后学生将可以提交评价。'
-      break
-    case 1: // 进行中 -> 已结束
-      newStatus = 2
-      confirmMessage = '确定要结束这个评教任务吗？结束后学生将不能再提交评价。'
-      break
-    case 2: // 已结束 -> 重新开始（设为未开始）
-      newStatus = 0
-      confirmMessage = '确定要重新开始这个评教任务吗？任务状态将重置为未开始。'
-      break
-  }
-
-  try {
-    await ElMessageBox.confirm(confirmMessage, '提示', {
-      type: 'warning'
-    })
-
-    statusLoading.value = true
-    await api.task.changeTaskStatus({
-      id: parseInt(taskId.value),
-      status: newStatus
-    })
-
-    formData.status = newStatus
-    taskDetail.value.status = newStatus
-    ElMessage.success('状态修改成功')
-
-    // 重新获取最新数据
-    await fetchTaskDetail()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('状态修改失败')
+    switch (formData.status) {
+        case 0: // 未开始 -> 进行中
+            newStatus = 1
+            confirmMessage = '确定要开始这个评教任务吗？开始后学生将可以提交评价。'
+            break
+        case 1: // 进行中 -> 已结束
+            newStatus = 2
+            confirmMessage = '确定要结束这个评教任务吗？结束后学生将不能再提交评价。'
+            break
+        case 2: // 已结束 -> 重新开始（设为未开始）
+            newStatus = 0
+            confirmMessage = '确定要重新开始这个评教任务吗？任务状态将重置为未开始。'
+            break
     }
-  } finally {
-    statusLoading.value = false
-  }
+
+    try {
+        await ElMessageBox.confirm(confirmMessage, '提示', {
+            type: 'warning'
+        })
+
+        statusLoading.value = true
+        await api.task.changeTaskStatus({
+            id: parseInt(taskId.value),
+            status: newStatus
+        })
+
+        formData.status = newStatus
+        taskDetail.value.status = newStatus
+        ElMessage.success('状态修改成功')
+
+        // 重新获取最新数据
+        await fetchTaskDetail()
+    } catch (error) {
+        if (error !== 'cancel') {
+            ElMessage.error('状态修改失败')
+        }
+    } finally {
+        statusLoading.value = false
+    }
 }
 
 // 导出评教结果
@@ -276,26 +271,26 @@ const handleExport = () => {
 
 // 查看班级详情
 const handleViewCourse = (course: CourseEvaluationStats) => {
-  ElMessage.info(`查看班级详情功能开发中: ${course.name}`)
+    ElMessage.info(`查看班级详情功能开发中: ${course.name}`)
 }
 
 // 返回任务列表
 const handleCancel = () => {
-  router.push('/evaluations')
+    router.push('/evaluations')
 }
 
 // 监听路由变化
 watch(
-  () => route.params.id,
-  (newId) => {
-    taskId.value = newId as string
-    fetchTaskDetail()
-  }
+    () => route.params.id,
+    (newId) => {
+        taskId.value = newId as string
+        fetchTaskDetail()
+    }
 )
 
 // 初始化加载
 onMounted(() => {
-  fetchTaskDetail()
+    fetchTaskDetail()
 })
 </script>
 
