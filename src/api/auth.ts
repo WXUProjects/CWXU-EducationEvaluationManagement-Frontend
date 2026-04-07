@@ -17,6 +17,22 @@ export interface AdminLoginResponse {
 }
 
 /**
+ * 管理员修改密码请求参数
+*/
+export interface AdminChangePasswordRequest {
+  username: string;
+  oldPassword: string;
+  newPassword: string;
+}
+
+/**
+ * 管理员修改密码响应数据
+ */
+export interface AdminChangePasswordResponse {
+  message: string;
+}
+
+/**
  * 认证模块API
  */
 export class AuthApi {
@@ -34,6 +50,19 @@ export class AuthApi {
   adminLogin(data: AdminLoginRequest, config?: any) {
     return this.api.post<AdminLoginResponse>(
       '/api/v1/auth/admin/login',
+      data,
+      config
+    );
+  }
+
+  /**
+   * 管理员修改密码
+   * @param data 修改密码数据
+   * @param config 配置项
+   */
+  adminChangePassword(data: AdminChangePasswordRequest, config?: any) {
+    return this.api.post<AdminChangePasswordResponse>(
+      '/api/v1/auth/admin/change-password',
       data,
       config
     );

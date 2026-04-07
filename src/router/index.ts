@@ -81,6 +81,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/settings',
+    name: '设置',
+    component: () => import('@/views/Settings.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: '无效页面',
     component: () => import('@/views/404.vue'),

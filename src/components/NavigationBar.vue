@@ -44,6 +44,10 @@ const handleLogout = async () => {
                 <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />
                 <div class="title">评教任务</div>
             </router-link>
+            <router-link to="/settings" class="item" active-class="active-item">
+                <font-awesome-icon icon="fa-solid fa-gear" class="icon" />
+                <div class="title">设置</div>
+            </router-link>
             <a class="item" @click="handleLogout">
                 <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="icon" />
                 <div class="title">退出</div>
