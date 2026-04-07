@@ -1,61 +1,65 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { jwtDecode } from "jwt-decode";
 
-export interface UserInfo {
-  id: number
-  username: string
-  name: string
-  role: string
-  avatar?: string
+interface JwtPayload {
+  "exp": number,
+  "iat": number,
+  "nbf": number,
+  "role": string,
+  "userId": number,
+  "username": string
 }
+
 
 export const useUserStore = defineStore('user', () => {
   // 状态
   const token = ref<string | null>(localStorage.getItem('token'))
-  const user = ref<UserInfo | null>(null)
-  const isAuthenticated = computed(() => !!token.value)
 
-  // 从本地存储初始化用户信息
-  const initFromStorage = () => {
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      try {
-        user.value = JSON.parse(storedUser)
-      } catch (e) {
-        user.value = null
-      }
+  // JWT荷载计算属性
+  const payload = computed((): JwtPayload | null => {
+    if (!token.value) return null
+    try {
+      return jwtDecode<JwtPayload>(token.value)
+    } catch (error) {
+      console.error('JWT解码失败:', error)
+      return null
     }
-  }
+  })
 
-  // 初始化
-  initFromStorage()
+  // 用户信息计算属性
+  const userId = computed(() => payload.value?.userId ?? null)
+  const username = computed(() => payload.value?.username ?? null)
+  const role = computed(() => payload.value?.role ?? null)
+
+  // 检查token是否过期
+  const isTokenExpired = computed(() => {
+    if (!payload.value?.exp) return true
+    // exp是Unix时间戳（秒），Date.now()返回毫秒
+    const currentTime = Math.floor(Date.now() / 1000)
+    return payload.value.exp < currentTime
+  })
+
+  // 检查token是否有效（未过期）
+  const isTokenValid = computed(() => {
+    return !!token.value && !isTokenExpired.value
+  })
+
+  // 认证状态（token存在且未过期）
+  const isAuthenticated = computed(() => isTokenValid.value)
 
   // 登录
   const login = async (username: string, password: string) => {
     try {
-      // 这里应该调用真实API，暂时模拟登录
-      // const response = await api.auth.adminLogin({ username, password });
-      // const { token: newToken, user: userData } = response.data
-
-      // 模拟API响应
-      const newToken = 'mock-jwt-token-' + Date.now()
-      const userData: UserInfo = {
-        id: 1,
-        username,
-        name: username === 'admin' ? '管理员' : '用户',
-        role: username === 'admin' ? 'admin' : 'user'
+      const response = await api.auth.adminLogin({ username, password });
+      if (response.message == '登录成功') {
+        token.value = response.token;
+        localStorage.setItem('token', token.value)
+        return { success: true }
+      } else {
+        return { success: false, error: response.message }
       }
-
-      // 更新状态
-      token.value = newToken
-      user.value = userData
-
-      // 保存到本地存储
-      localStorage.setItem('token', newToken)
-      localStorage.setItem('user', JSON.stringify(userData))
-
-      return { success: true, user: userData }
     } catch (error) {
       console.error('登录失败:', error)
       return { success: false, error: '用户名或密码错误' }
@@ -65,9 +69,7 @@ export const useUserStore = defineStore('user', () => {
   // 登出
   const logout = () => {
     token.value = null
-    user.value = null
     localStorage.removeItem('token')
-    localStorage.removeItem('user')
   }
 
   // 检查登录状态（验证token是否有效）
@@ -75,16 +77,47 @@ export const useUserStore = defineStore('user', () => {
     if (!token.value) {
       return false
     }
-    // 这里可以添加token验证逻辑
+
+    // 检查token是否有效（未过期）
+    if (isTokenExpired.value) {
+      // token已过期，自动登出
+      logout()
+      return false
+    }
+
     return true
+  }
+
+  // 监听localStorage变化，同步token状态
+  if (typeof window !== 'undefined') {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'token') {
+        // 同步token值
+        token.value = event.newValue
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    // 注意：storage事件只在同一站点的不同标签页之间触发
+    // 对于当前标签页的修改，不会触发storage事件
+    // 所以还需要监听自定义的auth-expired事件
+    window.addEventListener('auth-expired', () => {
+      token.value = null
+    })
   }
 
   return {
     token,
-    user,
     isAuthenticated,
+    payload,
+    userId,
+    username,
+    role,
+    isTokenExpired,
+    isTokenValid,
     login,
     logout,
-    checkAuth
+    checkAuth,
   }
 })

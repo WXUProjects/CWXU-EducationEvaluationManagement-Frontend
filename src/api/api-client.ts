@@ -54,11 +54,10 @@ export class ApiClient {
     // 请求拦截器
     this.instance.interceptors.request.use(
       (config) => {
-        // 可以在这里添加token等认证信息
-        // const token = localStorage.getItem('token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => {
@@ -118,7 +117,13 @@ export class ApiClient {
           break;
         case 401:
           message = errorMessage || '登录已过期，请重新登录';
-          // 可以在这里触发登出逻辑
+          // 清除本地token，触发自动登出
+          localStorage.removeItem('token');
+          // 如果是浏览器环境，可以重定向到登录页
+          if (typeof window !== 'undefined') {
+            // 触发一个自定义事件，让应用处理重定向
+            window.dispatchEvent(new CustomEvent('auth-expired'));
+          }
           break;
         case 403:
           message = errorMessage || '没有权限执行此操作';

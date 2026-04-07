@@ -93,6 +93,18 @@ const router = createRouter({
   routes,
 })
 
+// 监听认证过期事件
+if (typeof window !== 'undefined') {
+  window.addEventListener('auth-expired', () => {
+    // 清除本地token
+    localStorage.removeItem('token');
+    // 重定向到登录页
+    if (router.currentRoute.value.path !== '/') {
+      router.push('/');
+    }
+  });
+}
+
 // 路由守卫
 router.beforeEach(async (to, from) => {
   const userStore = useUserStore()

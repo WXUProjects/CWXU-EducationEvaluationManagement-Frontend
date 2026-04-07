@@ -90,10 +90,6 @@ const handleKeyup = (event: KeyboardEvent) => {
           </el-button>
         </el-form-item>
       </el-form>
-
-      <div class="footer">
-        <p class="hint">提示：可使用任意用户名和密码登录（演示模式）</p>
-      </div>
     </div>
   </div>
 </template>

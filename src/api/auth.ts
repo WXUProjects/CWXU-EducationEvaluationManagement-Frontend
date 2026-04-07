@@ -13,6 +13,7 @@ export interface AdminLoginRequest {
  */
 export interface AdminLoginResponse {
   message: string;
+  token: string;
 }
 
 /**
