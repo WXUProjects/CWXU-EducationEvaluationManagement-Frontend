@@ -75,6 +75,20 @@ const routes = [
     ],
   },
   {
+    path: '/questions',
+    component: () => import('@/components/layout.vue'),
+    redirect: '/questions/home',
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'home',
+        name: '管理问题',
+        component: () => import('@/views/question/Questions.vue'),
+        meta: { KeepAlive: true, requiresAuth: true }
+      },
+    ],
+  },
+  {
     path: '/students',
     name: '学生管理',
     component: () => import('@/views/Students.vue'),

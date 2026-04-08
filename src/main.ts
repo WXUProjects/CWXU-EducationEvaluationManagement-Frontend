@@ -23,7 +23,8 @@ import {
     faChalkboardTeacher,
     faPerson,
     faRightFromBracket,
-    faMagnifyingGlass
+    faMagnifyingGlass,
+    faClipboardQuestion
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add({
@@ -34,7 +35,8 @@ library.add({
     faChalkboardTeacher,
     faPerson,
     faRightFromBracket,
-    faMagnifyingGlass
+    faMagnifyingGlass,
+    faClipboardQuestion
 })
 
 const app = createApp(App)

@@ -37,3 +37,10 @@ export interface EvaluationDetail {
     student: Student;
     detail: string;     // 学生评价的 JSON 内容
 }
+
+export interface Question {
+    id: number;
+    content: string;
+    score: number;
+    sort: number;
+}

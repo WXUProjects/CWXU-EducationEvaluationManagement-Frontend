@@ -25,9 +25,13 @@ Base URLs:
 
 # Authentication
 
+- HTTP Authentication, scheme: bearer
+
+- HTTP Authentication, scheme: bearer
+
 # Default
 
-## GET 导出（不可用）
+## GET 导出
 
 GET /api/v1/task/export
 
@@ -45,6 +49,43 @@ GET /api/v1/task/export
 {
   "message": "导出成功",
   "filePath": "./tmp/评教结果.xlsx"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 重置基础信息
+
+POST /api/v1/base-info/reset
+
+重置除学生、教师之外的所有信息。
+建议每学期执行一次，弹窗提醒
+
+> Body 请求参数
+
+```json
+{}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "重置成功"
 }
 ```
 
@@ -1161,6 +1202,54 @@ POST /api/v1/base-info/course/edit
 |»»» email|string|true|none||none|
 |»» studentList|[string]|true|none||none|
 
+## POST 删除课程
+
+POST /api/v1/base-info/course/delete
+
+> Body 请求参数
+
+```json
+{
+  "id": 1
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+
+> 返回示例
+
+> 401 Response
+
+```json
+{
+  "code": 0,
+  "reason": "string",
+  "message": "string",
+  "metadata": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **401**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» code|integer|true|none||none|
+|» reason|string|true|none||none|
+|» message|string|true|none||none|
+|» metadata|object|true|none||none|
+
 # 认证模块
 
 ## GET 获取学生个人信息
@@ -1267,6 +1356,158 @@ POST /api/v1/auth/admin/login
 ```json
 {
   "message": "登录成功"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» message|string|true|none||none|
+|» token|string|true|none||none|
+
+## POST 管理员密码修改
+
+POST /api/v1/auth/admin/change-password
+
+> Body 请求参数
+
+```json
+{
+  "username": "admin",
+  "oldPassword": "sanenchen123",
+  "newPassword": "admin"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "密码修改成功"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+# 问题模块
+
+## POST 更新问题
+
+POST /api/v1/question/update
+
+> Body 请求参数
+
+```json
+{
+  "questions": [
+    {
+      "content": "教师教学态度端正，备课充分",
+      "score": 10,
+      "sort": 1
+    },
+    {
+      "content": "教学方法灵活，课堂互动良好",
+      "score": 10,
+      "sort": 2
+    },
+    {
+      "content": "作业批改认真，反馈及时",
+      "score": 10,
+      "sort": 3
+    },
+    {
+      "content": "教学效果显著，收获较大",
+      "score": 10,
+      "sort": 4
+    }
+  ]
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|body|body|object| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "更新成功"
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## GET 获取问题列表
+
+GET /api/v1/question/list
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "message": "获取成功",
+  "data": [
+    {
+      "id": 5,
+      "content": "教师教学态度端正，备课充分",
+      "score": 10,
+      "sort": 1
+    },
+    {
+      "id": 6,
+      "content": "教学方法灵活，课堂互动良好",
+      "score": 10,
+      "sort": 2
+    },
+    {
+      "id": 7,
+      "content": "作业批改认真，反馈及时",
+      "score": 10,
+      "sort": 3
+    },
+    {
+      "id": 8,
+      "content": "教学效果显著，收获较大",
+      "score": 10,
+      "sort": 4
+    }
+  ]
 }
 ```
 

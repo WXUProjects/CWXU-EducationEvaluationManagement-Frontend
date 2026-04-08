@@ -30,13 +30,20 @@
             <template #header>
                 <div class="table-header">
                     <span>班级列表</span>
+                    <div class="search-filters">
+                        <el-input v-model="searchQuery" placeholder="按班级名称搜索" clearable
+                            style="width: 200px; margin-right: 10px;" @clear="currentPage = 1" />
+                        <el-input v-model="teacherQuery" placeholder="按教师姓名搜索" clearable
+                            style="width: 200px; margin-right: 10px;" @clear="currentPage = 1" />
+                    </div>
                 </div>
             </template>
-            <el-table :data="courseList" border style="width: 100%" @selection-change="handleSelectionChange">
+            <el-table ref="courseTableRef" :data="paginatedCourses" border style="width: 100%" row-key="id"
+                @selection-change="handleSelectionChange" :reserve-selection="true">
                 <el-table-column type="selection" width="55" />
                 <el-table-column prop="id" label="ID" width="80" />
                 <el-table-column prop="className" label="班级名称" />
-                <el-table-column label="任课教师" width="200">
+                <el-table-column prop="teacherList" label="任课教师" width="200">
                     <template #default="{ row }">
                         <div class="tag-container">
                             <el-tag v-for="(teacher, index) in row.teacherList" :key="index" size="small" class="tag">
@@ -57,6 +64,11 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="pagination-container">
+                <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
+                    :page-sizes="[5, 10, 20, 50]" :total="filteredCourses.length"
+                    layout="total, sizes, prev, pager, next, jumper" background @size-change="currentPage = 1" />
+            </div>
         </el-card>
 
         <!-- 编辑评教问题 -->
@@ -82,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { api } from '@/api'
@@ -103,11 +115,51 @@ const formData = reactive({
 const courseList = ref<Course[]>([])
 // 表格选中的课程
 const selectedCourses = ref<Course[]>([])
+// 表格引用
+const courseTableRef = ref()
+// 恢复选择状态标志
+const isRestoringSelection = ref(false)
+
+// 分页和筛选相关
+const searchQuery = ref('')
+const teacherQuery = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+// 计算属性：筛选后的课程列表
+const filteredCourses = computed(() => {
+    return courseList.value.filter(course => {
+        const matchesClassName = searchQuery.value === '' ||
+            course.className.toLowerCase().includes(searchQuery.value.toLowerCase())
+        const matchesTeacher = teacherQuery.value === '' ||
+            (course.teacherList && course.teacherList.some(teacher =>
+                teacher.name.toLowerCase().includes(teacherQuery.value.toLowerCase())
+            ))
+        return matchesClassName && matchesTeacher
+    })
+})
+
+// 计算属性：分页后的课程列表
+const paginatedCourses = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    return filteredCourses.value.slice(start, end)
+})
+
+// 监听搜索条件变化，重置页码
+watch([searchQuery, teacherQuery], () => {
+    currentPage.value = 1
+})
+
+// 监听分页数据变化，恢复选择状态
+watch(paginatedCourses, () => {
+    restoreSelection()
+})
 
 // 获取课程列表
 const fetchCourseList = async () => {
     try {
-        const response = await api.course.getCourseList()
+        const response = await api.course.getCourseList({ page: -1 })
         courseList.value = response.data
     } catch (error) {
         console.error('获取课程列表失败:', error)
@@ -115,10 +167,51 @@ const fetchCourseList = async () => {
     }
 }
 
+// 恢复选择状态
+const restoreSelection = () => {
+    isRestoringSelection.value = true
+    nextTick(() => {
+        if (!courseTableRef.value) {
+            isRestoringSelection.value = false
+            return
+        }
+
+        const table = courseTableRef.value
+        // 清除当前页的选择状态
+        paginatedCourses.value.forEach(row => {
+            table.toggleRowSelection(row, false)
+        })
+
+        // 根据formData.courseIds恢复选择
+        paginatedCourses.value.forEach(row => {
+            if (formData.courseIds.includes(row.id)) {
+                table.toggleRowSelection(row, true)
+            }
+        })
+
+        // 恢复完成
+        nextTick(() => {
+            isRestoringSelection.value = false
+        })
+    })
+}
+
 // 表格选择变化
 const handleSelectionChange = (selection: Course[]) => {
-    selectedCourses.value = selection
-    formData.courseIds = selection.map(course => course.id)
+    // 如果是恢复选择过程中触发的事件，跳过处理
+    if (isRestoringSelection.value) return
+
+    // selection只包含当前页选中的行
+    // 我们需要更新formData.courseIds: 保留之前选中但不在当前页的课程，加上当前页的选择
+    const currentPageIds = new Set(paginatedCourses.value.map(course => course.id))
+    const previousSelection = formData.courseIds.filter(id => !currentPageIds.has(id))
+    const newSelection = selection.map(course => course.id)
+    formData.courseIds = [...previousSelection, ...newSelection]
+
+    // 更新selectedCourses（所有选中的课程对象）
+    selectedCourses.value = courseList.value.filter(course =>
+        formData.courseIds.includes(course.id)
+    )
 }
 
 // 提交表单
@@ -152,18 +245,6 @@ const handleCancel = () => {
     router.push('/evaluations')
 }
 
-// 查看班级详情
-const handleViewCourse = (course: Course) => {
-    ElMessage.info(`查看班级 ${course.className} 详情功能开发中`)
-}
-
-// 移除已选课程
-const handleRemoveCourse = (course: Course) => {
-    selectedCourses.value = selectedCourses.value.filter(c => c.id !== course.id)
-    formData.courseIds = formData.courseIds.filter(id => id !== course.id)
-    ElMessage.success(`已移除班级 ${course.className}`)
-}
-
 // 导入评教问题
 const handleImportQuestions = () => {
     ElMessage.info('导入评教问题功能开发中')
@@ -172,6 +253,32 @@ const handleImportQuestions = () => {
 // 使用默认评教问题
 const handleUseDefaultQuestions = () => {
     ElMessage.info('使用默认评教问题功能开发中')
+}
+
+// 查看班级详情
+const handleViewCourse = (course: Course) => {
+    ElMessage.info(`查看班级 ${course.className} 详情功能开发中`)
+}
+
+// 移除已选课程
+const handleRemoveCourse = (course: Course) => {
+    // 从选中列表中移除
+    formData.courseIds = formData.courseIds.filter(id => id !== course.id)
+    selectedCourses.value = selectedCourses.value.filter(c => c.id !== course.id)
+
+    // 如果该课程在当前页显示，更新表格选择状态
+    if (paginatedCourses.value.some(c => c.id === course.id)) {
+        nextTick(() => {
+            if (courseTableRef.value) {
+                const row = paginatedCourses.value.find(c => c.id === course.id)
+                if (row) {
+                    courseTableRef.value.toggleRowSelection(row, false)
+                }
+            }
+        })
+    }
+
+    ElMessage.success(`已移除班级 ${course.className}`)
 }
 
 // 初始化加载课程列表
@@ -266,5 +373,15 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.search-filters {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-container {
+    margin-top: 20px;
+    text-align: right;
 }
 </style>

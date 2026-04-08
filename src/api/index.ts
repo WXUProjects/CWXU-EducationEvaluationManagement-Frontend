@@ -5,6 +5,7 @@ import { BaseInfoApi } from './baseInfo';
 import { courseApi } from './course';
 import { taskApi } from './task';
 import { authApi } from './auth';
+import { questionApi } from './question';
 
 // 创建 API 实例
 export const baseInfoApi = new BaseInfoApi();
@@ -15,6 +16,7 @@ export const api = {
   course: courseApi,
   task: taskApi,
   auth: authApi,
+  question: questionApi,
 };
 
 // 默认导出 ApiClient 类
