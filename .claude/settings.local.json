@@ -5,7 +5,8 @@
       "Bash(xargs grep:*)",
       "Bash(npx tsc:*)",
       "Bash(ls -la .env*)",
-      "Bash(npx vue-tsc:*)"
+      "Bash(npx vue-tsc:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

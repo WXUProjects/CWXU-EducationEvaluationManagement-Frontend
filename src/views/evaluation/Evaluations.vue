@@ -271,7 +271,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onActivated, provide } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
 import type { TaskItem } from '@/api/task';
@@ -321,6 +321,9 @@ const fetchTaskList = async () => {
     }
 };
 
+// 提供给子路由的刷新方法
+provide('refreshTaskList', fetchTaskList);
+
 // 更新筛选选项计数
 const updateFilterCounts = (tasks: TaskItem[]) => {
     const counts = {
@@ -361,6 +364,11 @@ const createNewTask = () => {
 
 // 初始化加载
 onMounted(() => {
+    fetchTaskList();
+});
+
+// keep-alive 重新激活时刷新
+onActivated(() => {
     fetchTaskList();
 });
 </script>

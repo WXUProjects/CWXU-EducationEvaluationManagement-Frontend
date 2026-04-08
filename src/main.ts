@@ -17,14 +17,16 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
     faHome,
-    faGear, 
+    faGear,
     faListCheck,
     faPeopleGroup,
     faChalkboardTeacher,
     faPerson,
     faRightFromBracket,
     faMagnifyingGlass,
-    faClipboardQuestion
+    faClipboardQuestion,
+    faArrowUp,
+    faArrowDown
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add({
@@ -36,7 +38,9 @@ library.add({
     faPerson,
     faRightFromBracket,
     faMagnifyingGlass,
-    faClipboardQuestion
+    faClipboardQuestion,
+    faArrowUp,
+    faArrowDown
 })
 
 const app = createApp(App)

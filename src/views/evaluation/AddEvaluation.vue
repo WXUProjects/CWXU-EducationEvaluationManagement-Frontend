@@ -94,13 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, computed, watch, nextTick, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { api } from '@/api'
 import type { Course } from '@/types/type'
 
 const router = useRouter()
+
+// 刷新父级侧边栏任务列表
+const refreshTaskList = inject<() => Promise<void>>('refreshTaskList')
 
 // 加载状态
 const loading = ref(false)
@@ -232,6 +235,7 @@ const handleSubmit = async () => {
             courseIds: formData.courseIds
         })
         ElMessage.success('创建成功')
+        refreshTaskList?.()
         router.push('/evaluations')
     } catch (error) {
         ElMessage.error('创建失败')
