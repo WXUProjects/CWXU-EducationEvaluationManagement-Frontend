@@ -32,13 +32,17 @@ const handleLogout = async () => {
                 <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
                 <div class="title">教学班级</div>
             </router-link>
+            <router-link to="/students" class="item" active-class="active-item">
+                <font-awesome-icon icon="fa-solid fa-person" class="icon" />
+                <div class="title">学生管理</div>
+            </router-link>
             <router-link to="/teachers" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-chalkboard-teacher" class="icon" />
                 <div class="title">教师管理</div>
             </router-link>
-            <router-link to="/students" class="item" active-class="active-item">
-                <font-awesome-icon icon="fa-solid fa-person" class="icon" />
-                <div class="title">学生管理</div>
+            <router-link to="/teaching-courses" class="item" active-class="active-item">
+                <font-awesome-icon icon="fa-solid fa-people-group" class="icon" />
+                <div class="title">教学班级</div>
             </router-link>
             <router-link to="/evaluations" class="item" active-class="active-item">
                 <font-awesome-icon icon="fa-solid fa-list-check" class="icon" />

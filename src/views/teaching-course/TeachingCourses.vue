@@ -104,19 +104,11 @@
                     <el-input v-model="courseForm.className" placeholder="请输入班级名称" />
                 </el-form-item>
                 <el-form-item label="授课教师" prop="teacherIds">
-                    <el-select
-                        v-model="courseForm.teacherIds"
-                        multiple
-                        filterable
-                        remote
-                        reserve-keyword
-                        placeholder="请输入教师姓名或工号搜索"
-                        :remote-method="searchTeachers"
-                        :loading="teacherSearchLoading"
-                        style="width: 100%"
-                    >
-                        <el-option v-for="teacher in searchedTeacherList" :key="teacher.id" :label="`${teacher.name} (${teacher.workNo})`"
-                            :value="teacher.id" />
+                    <el-select v-model="courseForm.teacherIds" multiple filterable remote reserve-keyword
+                        placeholder="请输入教师姓名或工号搜索" :remote-method="searchTeachers" :loading="teacherSearchLoading"
+                        style="width: 100%">
+                        <el-option v-for="teacher in searchedTeacherList" :key="teacher.id"
+                            :label="`${teacher.name} (${teacher.workNo})`" :value="teacher.id" />
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -310,13 +302,13 @@ const searchTeachers = (query: string) => {
         teacherSearchLoading.value = true
         try {
             let result;
-            if(isNum(query)){
+            if (isNum(query)) {
                 result = await api.baseInfo.getTeacherList({
                     page: 1,
                     pageSize: 20,
                     workNo: query
                 })
-            }else{
+            } else {
                 result = await api.baseInfo.getTeacherList({
                     page: 1,
                     pageSize: 20,
@@ -507,8 +499,23 @@ const handleViewStudents = (row: Course) => {
 
 // 删除教学班级
 const handleDelete = (row: Course) => {
-    ElMessage("删除功能开发中...");
+    ElMessageBox.confirm(`确定要删除教学班级${row.courseName}吗？`, '提示', {
+        type: 'warning',
+    }).then(() => {
+        deleteCourse(row.id);
+    }).catch(() => { })
 }
+
+const deleteCourse = async (id: number) => {
+    try {
+        const result = await api.course.deleteCourse({ id }, { showSuccess: true });
+        console.log('删除成功:', result.message);
+    } catch (error) {
+        console.error('删除失败:', error);
+    }
+    fetchCourseList();
+}
+
 
 // 分页大小改变
 const handleSizeChange = (val: number) => {

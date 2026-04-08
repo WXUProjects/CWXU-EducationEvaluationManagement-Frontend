@@ -153,10 +153,11 @@ export class ApiClient {
    */
   protected showError(message: string, options?: MessageOptions) {
     ElMessage({
-      message,
+      message: message.replace(/\n/g, "<br>"),
       type: 'error',
       duration: 5000,
       showClose: true,
+      dangerouslyUseHTMLString: true,
       ...options,
     });
   }
@@ -166,10 +167,11 @@ export class ApiClient {
    */
   protected showSuccess(message: string, options?: MessageOptions) {
     ElMessage({
-      message,
+      message: message.replace(/\n/g, "<br>"),
       type: 'success',
       duration: 3000,
       showClose: true,
+      dangerouslyUseHTMLString: true,
       ...options,
     });
   }

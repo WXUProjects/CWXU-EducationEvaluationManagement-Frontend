@@ -52,6 +52,20 @@ export interface EditCourseResponse {
 }
 
 /**
+ * 删除课程请求参数
+*/
+export interface DeleteCourseRequest {
+  id: number;
+}
+
+/**
+ * 删除课程响应数据
+ */
+export interface DeleteCourseResponse {
+  message: string;
+}
+
+/**
  * 课程管理模块API
  */
 export class CourseApi {
@@ -108,6 +122,19 @@ export class CourseApi {
   editCourse(data: EditCourseRequest, config?: any) {
     return this.api.post<EditCourseResponse>(
       '/api/v1/base-info/course/edit',
+      data,
+      config
+    );
+  }
+
+  /**
+   * 删除课程
+   * @param data 课程信息
+   * @param config 请求配置
+   */
+  deleteCourse(data: DeleteCourseRequest, config?: any) {
+    return this.api.post<DeleteCourseResponse>(
+      '/api/v1/base-info/course/delete',
       data,
       config
     );
