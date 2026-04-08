@@ -25,7 +25,6 @@ const handleLogin = async () => {
   loading.value = false
 
   if (result.success) {
-    ElMessage.success('登录成功')
     router.push('/home')
   } else {
     ElMessage.error(result.error || '登录失败')
@@ -44,48 +43,21 @@ const handleKeyup = (event: KeyboardEvent) => {
   <div class="login-container">
     <div class="login-card">
       <div class="logo-section">
-        <img
-          src="/xiboliyaxueyuan.png"
-          alt="Logo"
-          class="logo"
-        />
+        <img src="/xiboliyaxueyuan.png" alt="Logo" class="logo" />
         <h1 class="title">教学评价管理系统</h1>
         <p class="subtitle">欢迎使用，请登录您的账户</p>
       </div>
 
-      <el-form
-        :model="form"
-        class="login-form"
-        @keyup.enter="handleLogin"
-      >
+      <el-form :model="form" class="login-form" @keyup.enter="handleLogin">
         <el-form-item>
-          <el-input
-            v-model="form.username"
-            placeholder="用户名"
-            size="large"
-            prefix-icon="User"
-            @keyup="handleKeyup"
-          />
+          <el-input v-model="form.username" placeholder="用户名" size="large" prefix-icon="User" @keyup="handleKeyup" />
         </el-form-item>
         <el-form-item>
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="密码"
-            size="large"
-            prefix-icon="Lock"
-            show-password
-            @keyup="handleKeyup"
-          />
+          <el-input v-model="form.password" type="password" placeholder="密码" size="large" prefix-icon="Lock"
+            show-password @keyup="handleKeyup" />
         </el-form-item>
         <el-form-item>
-          <el-button
-            type="primary"
-            size="large"
-            :loading="loading"
-            @click="handleLogin"
-            class="login-button"
-          >
+          <el-button type="primary" size="large" :loading="loading" @click="handleLogin" class="login-button">
             登录
           </el-button>
         </el-form-item>

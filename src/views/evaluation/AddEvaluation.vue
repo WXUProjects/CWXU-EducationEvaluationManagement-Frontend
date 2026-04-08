@@ -30,14 +30,6 @@
             <template #header>
                 <div class="table-header">
                     <span>班级列表</span>
-                    <div class="table-header-acions">
-                        <el-button type="primary" size="small" @click="handleAddCourse">
-                            添加班级
-                        </el-button>
-                        <el-button type="primary" size="small" @click="handleAddAllCourses">
-                            添加全部教学班级
-                        </el-button>
-                    </div>
                 </div>
             </template>
             <el-table :data="courseList" border style="width: 100%" @selection-change="handleSelectionChange">
@@ -158,22 +150,6 @@ const handleSubmit = async () => {
 // 取消操作
 const handleCancel = () => {
     router.push('/evaluations')
-}
-
-// 添加单个课程（选择对话框）
-const handleAddCourse = () => {
-    ElMessage.info('添加班级功能开发中')
-}
-
-// 添加全部教学班级
-const handleAddAllCourses = () => {
-    if (courseList.value.length === 0) {
-        ElMessage.warning('暂无课程可添加')
-        return
-    }
-    selectedCourses.value = [...courseList.value]
-    formData.courseIds = courseList.value.map(course => course.id)
-    ElMessage.success(`已添加全部 ${courseList.value.length} 个课程`)
 }
 
 // 查看班级详情

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="edit-course-container">
         <div class="header">
             <div class="title">管理教师班级</div>
@@ -185,4 +185,4 @@ watch(route, () => {
     align-items: center;
     justify-content: center;
 }
-</style>
+</style> -->
