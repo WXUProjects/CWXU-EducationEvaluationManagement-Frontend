@@ -5,7 +5,6 @@
             <h2>问题管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleAddQuestion">添加问题</el-button>
-                <el-button type="primary" @click="handleImport">导入问题</el-button>
             </div>
         </div>
 
@@ -32,15 +31,32 @@
         <el-card class="table-card">
             <template #header>
                 <div class="table-header">
-                    <span>问题列表</span>
+                    <span>问题列表 ({{ filteredQuestions.length }})</span>
                 </div>
             </template>
-            <el-table :data="questionsData" border style="width: 100%" v-loading="loading">
-                <el-table-column prop="id" label="ID" width="60" align="center" />
+            <el-table :data="paginatedQuestions" border style="width: 100%" v-loading="loading">
+                <el-table-column label="排序" width="100" align="center">
+                    <template #default="{ $index }">
+                        <div class="sort-buttons">
+                            <el-button link type="primary" :disabled="$index === 0 && currentPageStartIndex === 0"
+                                @click="moveQuestion($index, -1)">
+                                <font-awesome-icon icon="fa-solid fa-arrow-up" />
+                            </el-button>
+                            <el-button link type="primary"
+                                :disabled="$index === paginatedQuestions.length - 1 && currentPageStartIndex + $index === filteredQuestions.length - 1"
+                                @click="moveQuestion($index, 1)">
+                                <font-awesome-icon icon="fa-solid fa-arrow-down" />
+                            </el-button>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column label="序号" width="60" align="center">
+                    <template #default="{ $index }">
+                        {{ currentPageStartIndex + $index + 1 }}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="content" label="问题内容" min-width="300" />
-                <el-table-column prop="score" label="分值" width="80" align="center" />
-                <el-table-column prop="sort" label="排序" width="80" align="center" />
-                <el-table-column label="操作" width="200" fixed="right" align="center">
+                <el-table-column label="操作" width="150" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
                         <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
@@ -51,7 +67,7 @@
             <!-- 分页 -->
             <div class="pagination">
                 <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
-                    :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                    :page-sizes="[10, 20, 50, 100]" :total="filteredQuestions.length"
                     layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
                     @current-change="handleCurrentChange" />
             </div>
@@ -60,44 +76,14 @@
         <!-- 添加/编辑问题对话框 -->
         <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" @close="handleDialogClose">
             <el-form :model="questionForm" :rules="questionRules" ref="questionFormRef" label-width="100px">
+                <el-form-item label="问题内容" prop="content">
+                    <el-input v-model="questionForm.content" type="textarea" :rows="4" placeholder="请输入问题内容" />
+                </el-form-item>
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit">确定</el-button>
-                </span>
-            </template>
-        </el-dialog>
-
-        <!-- 导入问题对话框 -->
-        <el-dialog v-model="importDialogVisible" title="导入问题" width="500px" @close="handleImportDialogClose">
-            <el-upload class="upload-demo" drag :show-file-list="false" :before-upload="beforeUpload"
-                :on-change="handleFileChange" :auto-upload="false" action="/api/upload" name="file" :multiple="false"
-                accept=".xlsx,.xls">
-                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                <div class="el-upload__text">
-                    拖拽文件到此处或 <em>点击上传</em>
-                </div>
-                <template #tip>
-                    <div class="el-upload__tip">
-                        请上传Excel文件（.xlsx 或 .xls 格式）
-                    </div>
-                </template>
-            </el-upload>
-
-            <!-- 显示选中的文件 -->
-            <div class="selected-file" v-if="uploadFile">
-                <el-tag type="success" closable @close="handleRemoveFile">
-                    <el-icon>
-                        <Document />
-                    </el-icon>
-                    <span>{{ uploadFile.name }}</span>
-                </el-tag>
-            </div>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="importDialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="handleImportConfirm" :loading="importLoading">开始导入</el-button>
+                    <el-button type="primary" @click="handleSubmit" :loading="submitLoading">确定</el-button>
                 </span>
             </template>
         </el-dialog>
@@ -105,266 +91,164 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type UploadProps } from 'element-plus'
-import { UploadFilled, Document } from '@element-plus/icons-vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { api } from '@/api'
 import type { Question } from '@/types/type'
 
-// 加载状态
 const loading = ref(false)
+const submitLoading = ref(false)
 
-// 筛选表单（预留，目前问题列表不需要筛选）
-const filterForm = reactive({
-    content: '',
-})
+const filterForm = reactive({ content: '' })
+const filterActive = ref(false)
 
-// 分页配置
 const pagination = reactive({
     currentPage: 1,
     pageSize: 10,
-    total: 0
 })
 
-// 问题数据
+// 问题数据（完整列表）
 const questionsData = ref<Question[]>([])
+
+// 筛选后的问题列表
+const filteredQuestions = computed(() => {
+    if (!filterActive.value || !filterForm.content.trim()) {
+        return questionsData.value
+    }
+    const keyword = filterForm.content.trim().toLowerCase()
+    return questionsData.value.filter(q => q.content.toLowerCase().includes(keyword))
+})
+
+const currentPageStartIndex = computed(() => {
+    return (pagination.currentPage - 1) * pagination.pageSize
+})
+
+const paginatedQuestions = computed(() => {
+    const start = currentPageStartIndex.value
+    return filteredQuestions.value.slice(start, start + pagination.pageSize)
+})
 
 // 对话框状态
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const questionFormRef = ref<FormInstance>()
-const questionForm = reactive({
-    id: 0,
-    content: '',
-    score: 10,
-    sort: 1,
-})
+const questionForm = reactive({ id: 0, content: '' })
+const isEditing = ref(false)
 
-// 导入相关状态
-const importDialogVisible = ref(false)
-const importLoading = ref(false)
-const uploadFile = ref<File | null>(null)
-
-// 表单验证规则
 const questionRules = {
     content: [{ required: true, message: '请输入问题内容', trigger: 'blur' }],
-    score: [{ required: true, message: '请输入分值', trigger: 'blur' }],
-    sort: [{ required: true, message: '请输入排序', trigger: 'blur' }],
 }
 
-// 搜索
+// 搜索 / 重置
 const handleSearch = () => {
-    fetchQuestionList()
+    filterActive.value = true
+    pagination.currentPage = 1
 }
 
-// 重置筛选
 const handleReset = () => {
     filterForm.content = ''
+    filterActive.value = false
     pagination.currentPage = 1
-    handleSearch()
 }
 
+// 获取问题列表
 const fetchQuestionList = async () => {
     loading.value = true
     try {
-        const result = await api.question.getQuestionList();
-        questionsData.value = result.data;
-        pagination.total = result.data.length;
-        console.log('问题列表:', result.data);
+        const result = await api.question.getQuestionList()
+        questionsData.value = result.data
     } catch (error) {
-        console.error('获取问题列表失败:', error);
-    }
-    loading.value = false
-}
-
-// 导入问题
-const handleImport = () => {
-    importDialogVisible.value = true
-    uploadFile.value = null
-}
-
-// 上传前的验证
-const beforeUpload: UploadProps['beforeUpload'] = (file) => {
-    console.log('beforeUpload called:', file.name, file.type, file.size)
-
-    // 检查文件扩展名，不只是MIME类型
-    const fileName = file.name.toLowerCase()
-    const isExcelByExtension = fileName.endsWith('.xlsx') || fileName.endsWith('.xls')
-    const isExcelByType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.type === 'application/vnd.ms-excel' ||
-        file.type === 'application/excel' ||
-        file.type === 'application/vnd.ms-excel.sheet.macroEnabled.12' ||
-        file.type === ''
-
-    const isExcel = isExcelByExtension || isExcelByType
-    const isLt10M = file.size / 1024 / 1024 < 10
-
-    console.log('File validation:', { isExcelByExtension, isExcelByType, isExcel, isLt10M })
-
-    if (!isExcel) {
-        ElMessage.error('只能上传Excel文件 (.xlsx 或 .xls 格式)!')
-        return false
-    }
-    if (!isLt10M && false) {
-        // 暂时不考虑大小验证
-        ElMessage.error('文件大小不能超过10MB!')
-        return false
-    }
-
-    uploadFile.value = file
-    ElMessage.success(`文件"${file.name}"已选择，点击"开始导入"按钮开始导入`)
-    return false // 返回false阻止自动上传，我们将手动触发
-}
-
-// 文件变化处理
-const handleFileChange: UploadProps['onChange'] = (uploadFileObj) => {
-    console.log('handleFileChange called:', uploadFileObj.name, uploadFileObj.status, uploadFileObj.raw)
-
-    // 当文件被选择时（状态为'ready'），保存文件引用
-    if (uploadFileObj.raw && uploadFileObj.status === 'ready') {
-        uploadFile.value = uploadFileObj.raw
-        console.log('File saved to uploadFile:', uploadFile.value?.name)
-
-        // 验证文件
-        const fileName = uploadFileObj.name.toLowerCase()
-        const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls')
-        const isLt10M = uploadFileObj.size ? uploadFileObj.size / 1024 / 1024 < 10 : true
-
-        if (!isExcel) {
-            ElMessage.warning('文件格式不正确，请上传Excel文件 (.xlsx 或 .xls 格式)')
-            uploadFile.value = null
-        } else if (!isLt10M && false) {
-            // 暂时不考虑大小验证
-            ElMessage.warning('文件大小不能超过10MB!')
-            uploadFile.value = null
-        } else {
-            ElMessage.success(`文件"${uploadFileObj.name}"已选择，点击"开始导入"按钮开始导入`)
-        }
-    }
-}
-
-// 确认导入
-const handleImportConfirm = async () => {
-    if (!uploadFile.value) {
-        ElMessage.warning('请先选择文件')
-        return
-    }
-
-    try {
-        importLoading.value = true
-        const result = await api.baseInfo.importTeachers(uploadFile.value, { showSuccess: true })
-        importDialogVisible.value = false
-        fetchQuestionList() // 刷新列表
-    } catch (error: any) {
-        ElMessage.error(`导入失败: ${error.message || '未知错误'}`)
+        console.error('获取问题列表失败:', error)
     } finally {
-        importLoading.value = false
+        loading.value = false
     }
 }
 
-// 移除已选择的文件
-const handleRemoveFile = () => {
-    uploadFile.value = null
-    ElMessage.info('已清除选择的文件')
+// 批量更新（自动重算 sort 值）
+const batchUpdateQuestions = async (questions: Question[]) => {
+    const updatedList = questions.map((q, index) => ({
+        content: q.content,
+        score: 10,
+        sort: index + 1,
+    }))
+    await api.question.updateQuestions({ questions: updatedList })
 }
 
-// 关闭导入对话框
-const handleImportDialogClose = () => {
-    uploadFile.value = null
+// 排序：始终对 questionsData（完整列表）操作
+const moveQuestion = async (pageRowIndex: number, direction: number) => {
+    const filteredIdx = currentPageStartIndex.value + pageRowIndex
+    const filtered = filteredQuestions.value
+    const targetIdx = filteredIdx + direction
+    if (targetIdx < 0 || targetIdx >= filtered.length) return
+
+    // 在完整列表中找到这两条对应的项并交换
+    const itemA = filtered[filteredIdx]!
+    const itemB = filtered[targetIdx]!
+    const idxA = questionsData.value.indexOf(itemA)
+    const idxB = questionsData.value.indexOf(itemB)
+    if (idxA === -1 || idxB === -1) return
+
+    const list = [...questionsData.value]
+    list[idxA] = itemB
+    list[idxB] = itemA
+    questionsData.value = list
+
+    loading.value = true
+    try {
+        await batchUpdateQuestions(list)
+        ElMessage.success('排序已更新')
+    } catch (error) {
+        console.error('更新排序失败:', error)
+        ElMessage.error('更新排序失败')
+        await fetchQuestionList()
+    } finally {
+        loading.value = false
+    }
 }
 
 // 添加问题
 const handleAddQuestion = () => {
     dialogTitle.value = '添加问题'
-    Object.assign(questionForm, {
-        id: 0,
-        content: '',
-        score: 10,
-        sort: 1,
-    })
+    isEditing.value = false
+    questionForm.id = 0
+    questionForm.content = ''
     dialogVisible.value = true
 }
 
 // 编辑问题
-const handleEdit = (row: any) => {
+const handleEdit = (row: Question) => {
     dialogTitle.value = '编辑问题'
-    Object.assign(questionForm, {
-        ...row,
-    })
+    isEditing.value = true
+    questionForm.id = row.id
+    questionForm.content = row.content
     dialogVisible.value = true
 }
 
-const updateQuestion = async (q: Question) => {
-    try {
-        // 注意：这里需要调用问题更新API，但目前API只支持批量更新
-        // 暂时先获取列表，然后更新整个列表
-        const result = await api.question.getQuestionList();
-        const questions = result.data;
-        const index = questions.findIndex(item => item.id === q.id);
-        if (index !== -1) {
-            questions[index] = q;
-            // 调用批量更新API
-            await api.question.updateQuestions({ questions });
-            ElMessage.success('更新成功');
-        }
-    } catch (error) {
-        console.error('更新失败:', error);
-    }
-    fetchQuestionList();
-}
-
-const deleteQuestion = async (id: number) => {
-    try {
-        // 注意：问题API没有单独的删除接口，需要获取列表后过滤，然后批量更新
-        const result = await api.question.getQuestionList();
-        const questions = result.data.filter(item => item.id !== id);
-        await api.question.updateQuestions({ questions });
-        ElMessage.success('删除成功');
-    } catch (error) {
-        console.error('删除失败:', error);
-    }
-    fetchQuestionList();
-}
-
 // 删除问题
-const handleDelete = (row: any) => {
+const handleDelete = (row: Question) => {
     ElMessageBox.confirm(`确定要删除问题 "${row.content}" 吗？`, '提示', {
         type: 'warning',
         confirmButtonText: '确定',
-        cancelButtonText: '取消'
-    }).then(() => {
-        deleteQuestion(row.id);
-    }).catch(() => { })
-}
-
-// 查看班级（预留）
-const handleViewCourses = (row: any) => {
-    ElMessage.info('此功能对问题管理不适用')
-}
-
-// 导出
-const handleExport = () => {
-    ElMessage.success('导出功能开发中...')
-}
-
-// 分页大小改变
-const handleSizeChange = (val: number) => {
-    pagination.pageSize = val
-    pagination.currentPage = 1
-    fetchQuestionList()
-}
-
-// 当前页改变
-const handleCurrentChange = (val: number) => {
-    pagination.currentPage = val
-    fetchQuestionList()
+        cancelButtonText: '取消',
+    }).then(async () => {
+        loading.value = true
+        try {
+            const list = questionsData.value.filter(q => q.id !== row.id)
+            await batchUpdateQuestions(list)
+            ElMessage.success('删除成功')
+            await fetchQuestionList()
+        } catch (error) {
+            console.error('删除失败:', error)
+            ElMessage.error('删除失败')
+        } finally {
+            loading.value = false
+        }
+    }).catch(() => {})
 }
 
 // 对话框关闭
 const handleDialogClose = () => {
-    if (questionFormRef.value) {
-        questionFormRef.value.resetFields()
-    }
+    questionFormRef.value?.resetFields()
 }
 
 // 表单提交
@@ -373,27 +257,44 @@ const handleSubmit = async () => {
 
     try {
         await questionFormRef.value.validate()
+        submitLoading.value = true
 
-        if (questionForm.id === 0) {
-            // 添加新问题：获取最大ID
-            const newId = questionsData.value.length > 0
-                ? Math.max(...questionsData.value.map(item => item.id)) + 1
-                : 1;
-            const newQuestion = { ...questionForm, id: newId };
-            const updatedQuestions = [...questionsData.value, newQuestion];
-            await api.question.updateQuestions({ questions: updatedQuestions });
-            ElMessage.success('添加成功');
+        let list: Question[]
+        if (!isEditing.value) {
+            // 添加：追加到末尾
+            list = [...questionsData.value, {
+                id: 0,
+                content: questionForm.content,
+                score: 10,
+                sort: questionsData.value.length + 1,
+            }]
         } else {
-            updateQuestion(questionForm);
+            // 编辑：替换对应项的 content
+            list = questionsData.value.map(q =>
+                q.id === questionForm.id ? { ...q, content: questionForm.content } : q
+            )
         }
-        dialogVisible.value = false;
-        fetchQuestionList();
+
+        await batchUpdateQuestions(list)
+        ElMessage.success(isEditing.value ? '修改成功' : '添加成功')
+        dialogVisible.value = false
+        await fetchQuestionList()
     } catch (error) {
-        console.error('表单验证失败:', error);
+        console.error('操作失败:', error)
+    } finally {
+        submitLoading.value = false
     }
 }
 
-// 初始化加载数据
+// 分页
+const handleSizeChange = () => {
+    pagination.currentPage = 1
+}
+
+const handleCurrentChange = (val: number) => {
+    pagination.currentPage = val
+}
+
 onMounted(() => {
     fetchQuestionList()
 })
@@ -442,24 +343,11 @@ onMounted(() => {
     align-items: center;
 }
 
-.table-header-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.batch-actions {
+.sort-buttons {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f5f7fa;
-    border-radius: 4px;
-}
-
-.batch-count {
-    font-size: 14px;
-    color: #606266;
+    justify-content: center;
+    gap: 4px;
 }
 
 .pagination {
@@ -472,64 +360,5 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-}
-
-.course-names {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-.course-tag {
-    margin-right: 4px;
-}
-
-/* 上传样式 */
-.upload-demo {
-    width: 100%;
-}
-
-.upload-demo .el-upload {
-    width: 100%;
-}
-
-.upload-demo .el-upload-dragger {
-    width: 100%;
-    height: 180px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.el-upload__tip {
-    margin-top: 10px;
-    color: #666;
-    font-size: 12px;
-}
-
-.selected-file {
-    margin-top: 15px;
-    text-align: center;
-}
-
-.selected-file .el-tag {
-    max-width: 100%;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    font-size: 14px;
-}
-
-.selected-file .el-tag .el-icon {
-    font-size: 16px;
-}
-</style>
-
-<style>
-.selected-file .el-tag .el-tag__content {
-    display: flex;
-    flex-direction: row;
 }
 </style>

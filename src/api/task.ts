@@ -13,7 +13,7 @@ export interface ExportTaskParams {
  */
 export interface ExportTaskResponse {
   message: string;
-  filePath: string;
+  zipPath: string;
 }
 
 /**

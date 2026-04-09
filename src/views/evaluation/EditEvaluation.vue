@@ -8,7 +8,7 @@
                 <el-button type="primary" @click="handleChangeStatus" :loading="statusLoading">
                     {{ getStatusActionText() }}
                 </el-button>
-                <el-button type="primary" @click="handleExport(taskDetail.id)" :loading="exportLoading">导出结果</el-button>
+                <el-button type="primary" @click="handleExport" :loading="exportLoading" :disabled="formData.status !== 2">导出结果</el-button>
             </div>
         </div>
 
@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { api } from '@/api'
@@ -127,6 +127,9 @@ import type { TaskDetailResponse, CourseEvaluationStats } from '@/api/task'
 
 const route = useRoute()
 const router = useRouter()
+
+// 刷新父级侧边栏任务列表
+const refreshTaskList = inject<() => Promise<void>>('refreshTaskList')
 
 // 路由参数
 const taskId = ref(route.params.id as string)
@@ -253,6 +256,9 @@ const handleChangeStatus = async () => {
         taskDetail.value.status = newStatus
         ElMessage.success('状态修改成功')
 
+        // 刷新侧边栏任务列表
+        refreshTaskList?.()
+
         // 重新获取最新数据
         await fetchTaskDetail()
     } catch (error) {
@@ -265,11 +271,27 @@ const handleChangeStatus = async () => {
 }
 
 // 导出评教结果
-const handleExport = (taskId: string) => {
-    // try {
-    //     const result = api.task.exportTask({ taskId });
-    // } catch (error) {
-    // }
+const handleExport = async () => {
+    if (formData.status !== 2) {
+        ElMessage.warning('只能导出已结束的任务')
+        return
+    }
+    exportLoading.value = true
+    try {
+        const response = await api.task.exportTask({ taskId: taskId.value })
+        const link = document.createElement('a')
+        link.href = `/${response.zipPath}`
+        link.download = ''
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        ElMessage.success('导出成功')
+    } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败')
+    } finally {
+        exportLoading.value = false
+    }
 }
 
 // 查看班级详情
