@@ -67,6 +67,13 @@ export interface UpdateTeacherRequest {
 }
 
 /**
+ * 重置响应
+*/
+export interface ResetResponse {
+  message: string;
+}
+
+/**
  * 基础信息模块API
  */
 export class BaseInfoApi {
@@ -178,6 +185,18 @@ export class BaseInfoApi {
     return this.api.post<{ message: string; data: Teacher }>(
       '/api/v1/base-info/teacher/update',
       data,
+      config
+    );
+  }
+
+  /**
+   * 重置基础信息
+   * @param config 请求配置
+   */
+  reset(config?: any) {
+    return this.api.post<ResetResponse>(
+      '/api/v1/base-info/reset',
+      {},
       config
     );
   }

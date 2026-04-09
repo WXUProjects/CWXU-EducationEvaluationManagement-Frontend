@@ -23,6 +23,17 @@
             </div>
         </el-card>
 
+        <!-- 重置信息 -->
+        <el-card>
+            <template #header>
+                <div class="setting-header">
+                    <span>重置信息</span>
+                </div>
+            </template>
+            <p>重置除学生、教师之外的所有信息。<br>建议每学期执行一次</p>
+            <el-button @click="handleReset" type="primary">确认重置</el-button>
+        </el-card>
+
         <!-- 修改密码 -->
         <el-card>
             <template #header>
@@ -32,13 +43,16 @@
             </template>
             <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="100px">
                 <el-form-item label="旧密码" prop="oldPassword">
-                    <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码" show-password></el-input>
+                    <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码"
+                        show-password></el-input>
                 </el-form-item>
                 <el-form-item label="新密码" prop="newPassword">
-                    <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password></el-input>
+                    <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码"
+                        show-password></el-input>
                 </el-form-item>
                 <el-form-item label="确认新密码" prop="confirmPassword">
-                    <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" show-password></el-input>
+                    <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码"
+                        show-password></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" :loading="changingPassword" @click="handleChangePassword">修改密码</el-button>
@@ -79,6 +93,21 @@ const roleLabel = computed(() => {
         default: return role.value || '未知';
     }
 });
+
+// 重置信息
+const handleReset = async () => {
+    ElMessageBox.confirm('此操作将重置除学生、教师之外的所有信息，请确认是否继续？', '重置信息', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+    }).then(async () => {
+        try {
+            const response = await api.baseInfo.reset({ showSuccess: true });
+        } catch (error) {
+            ElMessage.error('重置失败');
+        }
+    }).catch(() => { })
+}
 
 // 密码表单
 const passwordFormRef = ref<FormInstance>();

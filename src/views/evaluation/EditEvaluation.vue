@@ -8,7 +8,7 @@
                 <el-button type="primary" @click="handleChangeStatus" :loading="statusLoading">
                     {{ getStatusActionText() }}
                 </el-button>
-                <el-button type="primary" @click="handleExport" :loading="exportLoading">导出结果</el-button>
+                <el-button type="primary" @click="handleExport(taskDetail.id)" :loading="exportLoading">导出结果</el-button>
             </div>
         </div>
 
@@ -265,8 +265,11 @@ const handleChangeStatus = async () => {
 }
 
 // 导出评教结果
-const handleExport = () => {
-    ElMessage('导出功能开发中...')
+const handleExport = (taskId: string) => {
+    // try {
+    //     const result = api.task.exportTask({ taskId });
+    // } catch (error) {
+    // }
 }
 
 // 查看班级详情
