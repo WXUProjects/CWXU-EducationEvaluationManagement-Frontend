@@ -5,7 +5,6 @@
             <h2>学生管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleImport">导入学生</el-button>
-                <el-button type="primary" @click="handleExport">导出学生</el-button>
             </div>
         </div>
 
@@ -352,11 +351,6 @@ const handleDelete = (row: any) => {
     }).then(() => {
         deleteStudent(row.id);
     }).catch(() => { })
-}
-
-// 导出
-const handleExport = () => {
-    ElMessage.success('导出功能开发中...')
 }
 
 // 分页大小改变

@@ -5,7 +5,6 @@
             <h2>教学班级管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleImportCourse">导入教学班级</el-button>
-                <el-button type="primary" @click="handleExportCourse">导出教学班级</el-button>
             </div>
         </div>
 
@@ -367,11 +366,6 @@ const handleAddCourse = () => {
 const handleImportCourse = () => {
     importDialogVisible.value = true
     uploadFile.value = null
-}
-
-// 导出教学班级
-const handleExportCourse = () => {
-    ElMessage("导出功能开发中...");
 }
 
 // 上传前的验证

@@ -106,13 +106,6 @@
                         <span v-else style="color: #909399;">-</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="120" fixed="right">
-                    <template #default="{ row }">
-                        <el-button link type="primary" @click="handleViewCourse(row)" :disabled="true">
-                            查看详情
-                        </el-button>
-                    </template>
-                </el-table-column>
             </el-table>
         </el-card>
     </div>
@@ -292,11 +285,6 @@ const handleExport = async () => {
     } finally {
         exportLoading.value = false
     }
-}
-
-// 查看班级详情
-const handleViewCourse = (course: CourseEvaluationStats) => {
-    ElMessage.info(`查看班级详情功能开发中: ${course.name}`)
 }
 
 // 返回任务列表

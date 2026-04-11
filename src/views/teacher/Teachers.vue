@@ -5,7 +5,6 @@
             <h2>教师管理</h2>
             <div class="header-actions">
                 <el-button type="primary" @click="handleImport">导入教师</el-button>
-                <el-button type="primary" @click="handleExport">导出教师</el-button>
             </div>
         </div>
 
@@ -49,7 +48,6 @@
                 <el-table-column label="操作" width="200" fixed="right" align="center">
                     <template #default="{ row }">
                         <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                        <el-button link type="primary" size="small" @click="handleViewCourses(row)">查看班级</el-button>
                         <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -356,16 +354,6 @@ const handleDelete = (row: any) => {
     }).then(() => {
         deleteTeacher(row.id);
     }).catch(() => { })
-}
-
-// 查看班级
-const handleViewCourses = (row: any) => {
-    ElMessage.info('查看班级功能开发中...')
-}
-
-// 导出
-const handleExport = () => {
-    ElMessage.success('导出功能开发中...')
 }
 
 // 分页大小改变

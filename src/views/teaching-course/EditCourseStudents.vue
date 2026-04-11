@@ -6,20 +6,12 @@
         </div>
         <div class="actions">
             <el-button @click="handleBack">返回</el-button>
-            <!-- <el-button>导入学生</el-button> -->
-            <!-- <el-button>添加单个学生</el-button> -->
         </div>
         <el-card>
             <el-table :data="filteredStudents" border style="width: 100%">
                 <el-table-column prop="studentNo" label="学号" width="120" />
                 <el-table-column prop="sex" label="性别" width="80" align="center" />
                 <el-table-column prop="name" label="姓名" />
-                <!-- <el-table-column label="操作" width="200" fixed="right" align="center">
-                    <template #default="{ row }">
-                        <el-button link type="primary" size="small">详情</el-button>
-                        <el-button link type="danger" size="small">删除</el-button>
-                    </template>
-                </el-table-column> -->
             </el-table>
         </el-card>
         <div class="pagination">

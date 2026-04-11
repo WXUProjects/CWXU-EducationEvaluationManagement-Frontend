@@ -66,12 +66,6 @@ const routes = [
         component: () => import('@/views/teacher/Teachers.vue'),
         meta: { KeepAlive: true, requiresAuth: true }
       },
-      // {
-      //   path: 'courses/:id',
-      //   name: '管理教师班级',
-      //   component: () => import('@/views/teacher/Courses.vue'),
-      //   meta: { requiresAuth: true }
-      // }
     ],
   },
   {

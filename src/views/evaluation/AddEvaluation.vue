@@ -71,25 +71,6 @@
             </div>
         </el-card>
 
-        <!-- 编辑评教问题 -->
-        <el-card class="table-card">
-            <template #header>
-                <div class="table-header">
-                    <span>编辑评教问题</span>
-                    <div class="table-header-acions">
-                        <el-button type="primary" size="small" @click="handleImportQuestions" disabled>
-                            导入评教问题
-                        </el-button>
-                        <el-button type="primary" size="small" @click="handleUseDefaultQuestions" disabled>
-                            使用默认评教问题
-                        </el-button>
-                    </div>
-                </div>
-            </template>
-            <div style="padding: 20px; text-align: center; color: #999;">
-                评教问题管理功能开发中
-            </div>
-        </el-card>
     </div>
 </template>
 
@@ -132,13 +113,14 @@ const pageSize = ref(10)
 // 计算属性：筛选后的课程列表
 const filteredCourses = computed(() => {
     return courseList.value.filter(course => {
+        const isActive = course.status !== 2
         const matchesClassName = searchQuery.value === '' ||
             course.className.toLowerCase().includes(searchQuery.value.toLowerCase())
         const matchesTeacher = teacherQuery.value === '' ||
             (course.teacherList && course.teacherList.some(teacher =>
                 teacher.name.toLowerCase().includes(teacherQuery.value.toLowerCase())
             ))
-        return matchesClassName && matchesTeacher
+        return isActive && matchesClassName && matchesTeacher
     })
 })
 
@@ -249,19 +231,9 @@ const handleCancel = () => {
     router.push('/evaluations')
 }
 
-// 导入评教问题
-const handleImportQuestions = () => {
-    ElMessage.info('导入评教问题功能开发中')
-}
-
-// 使用默认评教问题
-const handleUseDefaultQuestions = () => {
-    ElMessage.info('使用默认评教问题功能开发中')
-}
-
 // 查看班级详情
 const handleViewCourse = (course: Course) => {
-    ElMessage.info(`查看班级 ${course.className} 详情功能开发中`)
+    router.push(`/teaching-courses/students/${course.id}`)
 }
 
 // 移除已选课程

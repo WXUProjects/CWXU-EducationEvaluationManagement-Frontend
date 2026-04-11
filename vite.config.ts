@@ -7,6 +7,9 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
+    // 【新增这一行】强制让 Vite 打包出的所有静态资源前缀都带上 /admin/
+    base: '/admin/', 
+    
     plugins: [
       vue()
     ],
