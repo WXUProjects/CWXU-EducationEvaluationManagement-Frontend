@@ -44,7 +44,7 @@
                 <el-col :span="6">
                     <div class="stat-item">
                         <div class="stat-value total">{{ totalStudents }}</div>
-                        <div class="stat-label">总学生数</div>
+                        <div class="stat-label">应评价数</div>
                     </div>
                 </el-col>
                 <el-col :span="6">
@@ -94,7 +94,7 @@
                             </div>
                             <div>未评价: <span style="color: #e6a23c; font-weight: bold;">{{ row.totalNum -
                                 row.evaluationNum }}</span></div>
-                            <div>总人数: <span style="color: #409eff; font-weight: bold;">{{ row.totalNum }}</span></div>
+                            <div>应提交数: <span style="color: #409eff; font-weight: bold;">{{ row.totalNum }}</span></div>
                         </div>
                     </template>
                 </el-table-column>
